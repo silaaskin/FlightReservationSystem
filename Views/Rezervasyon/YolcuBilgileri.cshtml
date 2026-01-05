@@ -1,0 +1,258 @@
+@* Views/Rezervasyon/YolcuBilgileri.cshtml *@
+@using UcakBiletiRezervasyonSistemi.Models
+@using System.Text.RegularExpressions 
+@using System.Linq 
+
+@model dynamic 
+
+@{
+    ViewData["Title"] = "Yolcu ve Koltuk Bilgileri";
+    var ucusNo = ViewBag.UcusNo;
+    var yolcuSayisi = (int)ViewBag.YolcuSayisi;
+    var musteriTc = ViewBag.MusteriTc;
+    var toplamFiyat = (decimal)ViewBag.ToplamFiyat;
+    var koltuklar = (Dictionary<string, Koltuk>)ViewBag.Koltuklar;
+    
+    // Koltuk görseli için gereken veriyi hesapla
+    var maxSayı = koltuklar.Keys.Any() ? koltuklar.Keys.Select(k => int.Parse(Regex.Match(k, "[0-9]+").Value)).Max() : 0;
+    var harfler = koltuklar.Keys.Select(k => Regex.Match(k, "[A-Z]").Value).Distinct().OrderBy(h => h).ToList();
+    
+    // Koridorun yerleşimi için index
+    int koridorSonrasiIndex = harfler.Count / 2; 
+}
+
+<h2>Yolcu ve Koltuk Bilgileri Girişi</h2>
+<hr />
+
+@if (TempData["Hata"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Hata"]
+    </div>
+}
+
+<div class="alert alert-info">
+    Toplam <strong>@yolcuSayisi</strong> kişilik rezervasyon yapılacaktır. Toplam Tutar: <strong>@toplamFiyat.ToString("C")</strong>
+</div>
+
+<h4 class="mt-4"><i class="fas fa-couch"></i> Uçak Koltuk Düzeni</h4>
+<div class="p-4 border rounded mb-5" style="background-color: #f0f3f6;">
+    <p class="small text-center text-muted mb-3">
+        <span class="badge bg-success">Yeşil: Boş</span> | 
+        <span class="badge bg-danger">Kırmızı: Dolu</span> | 
+        <span class="badge bg-warning">Sarı: Seçilen</span> | 
+        <span class="badge bg-secondary">Gri: Koridor</span>
+    </p>
+    
+    <div class="d-flex justify-content-center">
+        <div class="uçak-gövdesi">
+            
+            <div class="koltuk-haritası d-flex flex-column align-items-center">
+                <div class="d-flex mb-2">
+                    <div style="width: 30px;"></div>
+                    @for (int s = 1; s <= maxSayı; s++)
+                    {
+                        <div class="text-center small font-weight-bold" style="width: 30px; margin-left: 2px;">@s</div>
+                    }
+                </div>
+
+                @for (int h = 0; h < harfler.Count; h++)
+                {
+                    var harf = harfler[h];
+                    <div class="d-flex mb-1">
+                        <div class="text-center small font-weight-bold" style="width: 30px;">@harf</div>
+                        
+                        @for (int s = 1; s <= maxSayı; s++)
+                        {
+                            var koltukKey = $"{harf}{s}";
+                            
+                            if (h == koridorSonrasiIndex && s == 1 && harfler.Count > 3)
+                            {
+                                <div class="koltuk koridor bg-secondary text-center rounded-sm mx-1" style="width: 30px; height: 30px;"></div>
+                            }
+
+                            if (koltuklar.ContainsKey(koltukKey))
+                            {
+                                bool doluMu = koltuklar[koltukKey].Dolu;
+                                string renkSınıfı = doluMu ? "bg-danger" : "bg-success";
+                                string ikon = doluMu ? "fas fa-times" : "fas fa-check";
+                                
+                                <div data-koltuk-key="@koltukKey"
+                                     data-dolu="@(doluMu ? "true" : "false")"
+                                     class="koltuk @renkSınıfı text-white text-center rounded-sm mx-1 @(doluMu ? "" : "koltuk-secilebilir")" 
+                                     style="width: 30px; height: 30px; line-height: 30px; cursor: @(doluMu ? "default" : "pointer");" 
+                                     title="@koltukKey - @(doluMu ? "Dolu" : "Boş")">
+                                    <i class="@ikon" style="font-size: 0.8em;"></i>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<form asp-controller="Rezervasyon" asp-action="Onayla" method="post">
+    <input type="hidden" name="ucusNo" value="@ucusNo" />
+    <input type="hidden" name="yolcuSayisi" value="@yolcuSayisi" />
+
+    @for (int i = 0; i < yolcuSayisi; i++)
+    {
+        <div class="card mb-3">
+            <div class="card-header bg-secondary text-white">
+                Yolcu @(i + 1) @(i == 0 ? "(Rezervasyon Sahibi)" : "")
+            </div>
+            <div class="card-body">
+                <div class="form-group row mb-2">
+                    <label class="col-sm-2 col-form-label">TC No</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="yolcular[@i].TcNo" class="form-control" 
+                               maxlength="11" required 
+                               value="@(i == 0 ? musteriTc : "")" 
+                               @(i == 0 ? "readonly" : "") />
+                    </div>
+                </div>
+
+                <div class="form-group row mb-2">
+                    <label class="col-sm-2 col-form-label">Ad</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="yolcular[@i].Ad" class="form-control" required />
+                    </div>
+                </div>
+
+                <div class="form-group row mb-3">
+                    <label class="col-sm-2 col-form-label">Soyad</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="yolcular[@i].Soyad" class="form-control" required />
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label font-weight-bold">Koltuk Seçimi</label>
+                    <div class="col-sm-10">
+                        <select name="yolcular[@i].KoltukNo" 
+                                data-yolcu-index="@i" 
+                                class="form-control koltuk-dropdown" required>
+                            <option value="">Koltuk Seçiniz</option>
+                            @{
+                                var bosKoltuklar = koltuklar.Where(k => !k.Value.Dolu);
+
+                                var siralıKoltuklar = bosKoltuklar
+                                    .Select(k => new
+                                    {
+                                        Key = k.Key,
+                                        Harf = Regex.Match(k.Key, "[A-Z]").Value,
+                                        Sayı = int.Parse(Regex.Match(k.Key, "[0-9]+").Value)
+                                    })
+                                    .OrderBy(k => k.Harf)
+                                    .ThenBy(k => k.Sayı);
+                            }
+
+                            @foreach (var koltuk in siralıKoltuklar)
+                            {
+                                <option value="@koltuk.Key">@koltuk.Key</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    }
+
+    <br/>
+    <button type="submit" class="btn btn-warning btn-lg">Tüm Bilgileri Onayla ve Rezervasyon Yap</button>
+</form>
+
+@section Scripts {
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const MAX_SEATS = @ViewBag.YolcuSayisi;
+    let selectedSeats = new Map(); 
+
+    $(document).ready(function () {
+        $('.koltuk-secilebilir').on('click', function() {
+            const seatKey = $(this).data('koltuk-key');
+            
+            if (selectedSeats.has(seatKey)) {
+                const yolcuIndexToClear = selectedSeats.get(seatKey);
+                unselectSeat(seatKey, yolcuIndexToClear);
+                return;
+            }
+            
+            let assignedIndex = -1;
+            for (let i = 0; i < MAX_SEATS; i++) {
+                let currentSeat = $(`select[name="yolcular[${i}].KoltukNo"]`).val();
+                if (!currentSeat) {
+                    assignedIndex = i;
+                    break;
+                }
+            }
+
+            if (assignedIndex === -1 && selectedSeats.size === MAX_SEATS) {
+                const oldestSeatKey = selectedSeats.keys().next().value; 
+                const oldestYolcuIndex = selectedSeats.get(oldestSeatKey);
+                
+                unselectSeat(oldestSeatKey, oldestYolcuIndex);
+                assignedIndex = oldestYolcuIndex;
+            }
+
+            if (assignedIndex !== -1) {
+                selectSeat(seatKey, assignedIndex);
+            }
+        });
+
+        $('.koltuk-dropdown').on('change', function() {
+            const newSeatKey = $(this).val();
+            const yolcuIndex = parseInt($(this).data('yolcu-index'));
+            
+            let oldSeatKey = null;
+            for (const [key, value] of selectedSeats.entries()) {
+                if (value === yolcuIndex) {
+                    oldSeatKey = key;
+                    break;
+                }
+            }
+            
+            if (oldSeatKey) {
+                unselectSeat(oldSeatKey, yolcuIndex, false);
+            }
+
+            if (newSeatKey) {
+                if (selectedSeats.has(newSeatKey)) {
+                    alert('Bu koltuk zaten başka bir yolcu tarafından seçildi!');
+                    $(this).val('');
+                    return;
+                }
+                
+                selectSeat(newSeatKey, yolcuIndex, false);
+            }
+        });
+
+        function selectSeat(seatKey, yolcuIndex, updateForm = true) {
+            $(`.koltuk[data-koltuk-key="${seatKey}"]`)
+                .removeClass('bg-success').addClass('bg-warning border-2 border-dark')
+                .find('i').removeClass('fa-check').addClass('fa-user');
+            
+            selectedSeats.set(seatKey, yolcuIndex);
+            
+            if (updateForm) {
+                $(`select[name="yolcular[${yolcuIndex}].KoltukNo"]`).val(seatKey);
+            }
+        }
+
+        function unselectSeat(seatKey, yolcuIndex, updateForm = true) {
+            $(`.koltuk[data-koltuk-key="${seatKey}"]`)
+                .removeClass('bg-warning border-2 border-dark').addClass('bg-success')
+                .find('i').removeClass('fa-user').addClass('fa-check');
+            
+            selectedSeats.delete(seatKey);
+            
+            if (updateForm) {
+                $(`select[name="yolcular[${yolcuIndex}].KoltukNo"]`).val('');
+            }
+        }
+    });
+</script>
+}

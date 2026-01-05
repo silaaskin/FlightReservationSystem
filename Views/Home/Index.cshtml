@@ -1,0 +1,60 @@
+﻿@* Views/Home/Index.cshtml: Uygulamanın ana giriş sayfasını (Landing Page) temsil eder. *@
+@{
+    ViewData["Title"] = "Ana Sayfa - Uçuş Bileti Rezervasyon Sistemi";
+}
+
+@* Giriş Bölümü (Hero Section) *@
+<div class="text-center hero-section py-5">
+    @* Başlık *@
+    <h1 class="display-3 text-primary mb-4 animate__animated animate__fadeInDown">
+        <i class="fas fa-plane-departure"></i> Hayalinizdeki Uçuşa Yolculuk Başlasın!
+    </h1>
+    @* Açıklayıcı metin *@
+    <p class="lead text-secondary mb-5 animate__animated animate__fadeInUp">
+        Kolay ve hızlı bir şekilde uçak bileti arayın, rezervasyon yapın ve seyahat planlarınızı oluşturun.
+    </p>
+    
+    @* Uçuş Arama Butonu (Rezervasyon Controller'ın Index aksiyonuna yönlendirir) *@
+    <a asp-controller="Rezervasyon" asp-action="Index" class="btn btn-warning btn-lg shadow-lg animate__animated animate__pulse animate__infinite">
+        <i class="fas fa-search"></i> Hemen Uçuş Ara
+    </a>
+</div>
+
+@* Özellikler Bölümü (Feature Section) *@
+<div class="container mt-5 py-5">
+    <div class="row text-center">
+        
+        @* Özellik 1: Hızlı Rezervasyon *@
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100 p-4">
+                <div class="card-body">
+                    <i class="fas fa-ticket-alt fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Hızlı Rezervasyon</h5>
+                    <p class="card-text">Sadece birkaç adımda biletinizi ayırtın, zamandan tasarruf edin.</p>
+                </div>
+            </div>
+        </div>
+        
+        @* Özellik 2: Dinamik Fiyatlandırma (Proje Gereksinimi) *@
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100 p-4">
+                <div class="card-body">
+                    <i class="fas fa-hand-holding-usd fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Dinamik Fiyatlandırma</h5>
+                    <p class="card-text">En uygun fiyatlarla seyahat edin, bütçenize dost seçenekleri keşfedin.</p>
+                </div>
+            </div>
+        </div>
+        
+        @* Özellik 3: Güvenli İşlemler *@
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100 p-4">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Güvenli İşlemler</h5>
+                    <p class="card-text">Rezervasyonlarınızda güvenli ödeme seçenekleri ile huzurla yolculuk yapın.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

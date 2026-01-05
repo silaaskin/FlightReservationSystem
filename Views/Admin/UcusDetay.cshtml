@@ -1,0 +1,41 @@
+@model UcakBiletiRezervasyonSistemi.Models.Ucus
+
+@{
+    ViewData["Title"] = "Uçuş Detayı";
+}
+
+<h2>Uçuş Detayı: @Model.UcusNo</h2>
+<hr />
+
+<table class="table table-bordered">
+    <tr>
+        <th>Uçuş No</th>
+        <td>@Model.UcusNo</td>
+    </tr>
+    <tr>
+        <th>Kalkış Yeri</th>
+        <td>@Model.KalkisYeri</td>
+    </tr>
+    <tr>
+        <th>Varış Yeri</th>
+        <td>@Model.VarisYeri</td>
+    </tr>
+    <tr>
+        <th>Kalkış Tarihi</th>
+        <td>@Model.KalkisTarihiSaati.ToString("g")</td>
+    </tr>
+    <tr>
+        <th>Kapasite</th>
+        <td>@Model.Kapasite</td>
+    </tr>
+    <tr>
+        <th>Boş Koltuk</th>
+        <td>@Model.BosKoltukSayisi</td>
+    </tr>
+    <tr>
+        <th>Temel Fiyat</th>
+        <td>@Model.TemelFiyat.ToString("C")</td>
+    </tr>
+</table>
+
+<a asp-controller="Admin" asp-action="Index" class="btn btn-secondary">Geri Dön</a>

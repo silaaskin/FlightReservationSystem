@@ -1,0 +1,93 @@
+/* wwwroot/css/site.css */
+
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+/* --- GÖRÜNÜM İYİLEŞTİRMELERİ BAŞLANGICI --- */
+
+body {
+    font-family: 'Montserrat', sans-serif; /* Yeni fontunuz */
+    min-height: 100vh;
+    position: relative;
+    padding-bottom: 80px; 
+}
+
+/* 1. Uçak Temasına Uygun Canlı Renkler ve Butonlar */
+.btn-primary, .bg-primary {
+    color: #fff !important;
+    background-color: #007AA3 !important; /* Canlı Mavi */
+    border-color: #007AA3 !important;
+}
+
+.btn-warning {
+    color: #fff;
+    background-color: #FFA500 !important; /* Turuncu Vurgu */
+    border-color: #FFA500 !important;
+}
+
+/* 2. Navbar Başlığı (Marka) Stili */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #fff !important; /* Navbar'ı koyu yaptığımızda başlık beyaz olmalı */
+}
+
+/* 3. Footer Stili (Sayfanın altına sabitlemek için) */
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+    background-color: #f8f9fa; /* Açık gri arkaplan */
+    border-top: none; 
+}
+
+/* --- YENİ EKLENEN: GİRİŞ EKRANINI ORTALAMA STİLLERİ --- */
+
+/* Body'nin tam ekranı kaplamasını ve içeriği ortalamasını sağlar */
+.login-body {
+    background-color: #f0f3f6 !important; /* Hafif gri arka plan */
+    display: flex;
+    align-items: center; /* Dikeyde ortala */
+    justify-content: center; /* Yatayda ortala */
+    padding-bottom: 0; /* Footer itmesini iptal et */
+}
+
+/* Login Formunun bulunduğu kart stilini ayarlar */
+.login-container {
+    max-width: 400px;
+    width: 100%;
+    padding: 30px;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Belirgin gölge */
+}
+
+
+/* --- GÖRÜNÜM İYİLEŞTİRMELERİ SONU --- */
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}

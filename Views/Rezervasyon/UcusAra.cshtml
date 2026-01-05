@@ -1,0 +1,75 @@
+@* Views/Rezervasyon/UcusAra.cshtml *@
+@model System.Collections.Generic.List<UcakBiletiRezervasyonSistemi.Models.Ucus>
+@using System;
+@using System.Linq; // Math.Max için
+@using UcakBiletiRezervasyonSistemi.Models;
+@using UcakBiletiRezervasyonSistemi.Services;
+
+@{
+    ViewData["Title"] = "Arama Sonuçları";
+    // Güvenli tür dönüşümü yapın
+    var fiyatServisi = ViewBag.FiyatServisi as UcakBiletiRezervasyonSistemi.Services.FiyatlandirmaServisi;
+}
+
+<h2><i class="fas fa-route"></i> Bulunan Uçuşlar</h2>
+<hr />
+
+@if (Model != null && Model.Count > 0 && fiyatServisi != null)
+{
+    <div class="row">
+        @foreach (var ucus in Model)
+        {
+            @* Hata veren @{ bloğu kaldırıldı! Hesaplamalar direkt olarak burada yapılır. *@
+            
+            // Uçuşa kalan gün sayısını hesapla
+            TimeSpan kalanSure = ucus.KalkisTarihiSaati > DateTime.Now 
+                                ? ucus.KalkisTarihiSaati - DateTime.Now 
+                                : TimeSpan.Zero;
+            
+            int kalanGun = (int)Math.Max(0, kalanSure.TotalDays);
+            var dinamikFiyat = fiyatServisi.FiyatHesapla(ucus, 1);
+
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="fas fa-plane"></i> @ucus.KalkisYeri &rarr; @ucus.VarisYeri</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>Uçuş No: <strong>@ucus.UcusNo</strong></p>
+                        <p>Kalkış Zamanı: <strong>@ucus.KalkisTarihiSaati.ToString("dd MMM yyyy HH:mm")</strong></p>
+                        
+                        <p>
+                            Kalan Süre: 
+                            @* Burada tekrar @{ açmayın! Zaten kod bloğu içindeyiz. *@
+                            @if (kalanGun > 7)
+                            {
+                                <span class="badge bg-success">@kalanGun Gün Kaldı</span>
+                            }
+                            else if (kalanGun > 0 && kalanGun <= 7)
+                            {
+                                <span class="badge bg-warning">@kalanGun Gün Kaldı</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger"><i class="fas fa-exclamation-circle"></i> Bugün/Geçti</span>
+                            }
+                        </p>
+                        <p class="text-danger">Kalan Koltuk: <strong>@ucus.BosKoltukSayisi</strong></p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <span class="h4 text-success">
+                            @dinamikFiyat.ToString("C")
+                        </span>
+                        <a asp-controller="Rezervasyon" asp-action="Detay" asp-route-ucusNo="@ucus.UcusNo" class="btn btn-warning">Bilet Al <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        Belirtilen kriterlere uygun uçuş bulunamamıştır.
+    </div>
+}

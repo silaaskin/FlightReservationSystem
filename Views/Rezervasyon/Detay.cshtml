@@ -1,0 +1,38 @@
+@* Views/Rezervasyon/Detay.cshtml *@
+@model UcakBiletiRezervasyonSistemi.Models.Ucus
+@{
+    ViewData["Title"] = "Rezervasyon Detay";
+    // ViewBag'deki decimal türünü doğru cast ediyoruz.
+    var tahminiFiyat = (decimal)ViewBag.TahminiFiyat; 
+}
+
+<h2>@Model.UcusNo Numaralı Uçuş Detayları</h2>
+<hr />
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@Model.KalkisYeri -> @Model.VarisYeri</h5>
+        <p><strong>Tarih:</strong> @Model.KalkisTarihiSaati.ToString("dd.MM.yyyy HH:mm")</p>
+        <p><strong>Kalan Koltuk:</strong> @Model.BosKoltukSayisi</p>
+        <p><strong>Tahmini Fiyat (1 Kişi):</strong> <span class="badge bg-success">@tahminiFiyat.ToString("C")</span></p>
+    </div>
+</div>
+
+<h4 class="mt-4">Biletinizi Şimdi Ayırın</h4>
+
+@* GÜNCELLEME: Form, verileri Yolcu Bilgileri formunu gösterecek olan YolcuBilgileri metoduna gönderir. *@
+<form asp-controller="Rezervasyon" asp-action="YolcuBilgileri" method="post">
+    
+    @* UcusNo'yu gizli alan olarak gönderiyoruz (name="ucusNo" ile) *@
+    <input type="hidden" name="ucusNo" value="@Model.UcusNo" />
+
+    <div class="form-group">
+        <label for="yolcuSayisi">Yolcu Sayısı (Max @Model.BosKoltukSayisi)</label>
+        @* Yolcu Sayısı için name="yolcuSayisi" ile gönderiyoruz *@
+        <input type="number" name="yolcuSayisi" class="form-control" min="1" max="@Model.BosKoltukSayisi" required />
+    </div>
+    
+    <br />
+    <button type="submit" class="btn btn-warning">Yolcu Bilgilerini Gir</button>
+    <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+</form>

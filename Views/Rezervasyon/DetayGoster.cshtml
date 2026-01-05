@@ -1,0 +1,77 @@
+@* Views/Rezervasyon/DetayGoster.cshtml *@
+@model UcakBiletiRezervasyonSistemi.Models.Rezervasyon
+@{
+    ViewData["Title"] = "Rezervasyon Detay";
+    var ucus = (UcakBiletiRezervasyonSistemi.Models.Ucus)ViewBag.Ucus;
+}
+
+<h2>Rezervasyon Detayları</h2>
+<hr />
+
+@* Başarılı veya İptal Durumu Mesajı *@
+@if (Model.AktifMi)
+{
+    <div class="alert alert-success">
+        Rezervasyon Kodunuz: <strong>@Model.RezervasyonKodu</strong>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        Bu rezervasyon (@Model.RezervasyonKodu) şu anda aktif değildir (İptal Edilmiş).
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                Uçuş Bilgileri
+            </div>
+            <div class="card-body">
+                <p><strong>Uçuş No:</strong> @ucus.UcusNo</p>
+                <p><strong>Rota:</strong> @ucus.KalkisYeri &rarr; @ucus.VarisYeri</p>
+                <p><strong>Tarih:</strong> @ucus.KalkisTarihiSaati.ToString("dd.MM.yyyy HH:mm")</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+                Rezervasyon ve Ödeme
+            </div>
+            <div class="card-body">
+                <p><strong>Rezervasyon Tarihi:</strong> @Model.RezervasyonTarihi.ToString("dd.MM.yyyy HH:mm")</p>
+                <p><strong>Müşteri TC:</strong> @Model.MusteriTcNo</p>
+                <p><strong>Toplam Tutar:</strong> <span class="badge bg-danger">@Model.OdemeTutari.ToString("C")</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 class="mt-4">Yolcu Detayları (@Model.Yolcular.Count Kişi)</h4>
+<table class="table table-sm table-striped">
+    <thead>
+        <tr>
+            <th>Ad Soyad</th>
+            <th>TC No</th>
+            <th>Koltuk No</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var yolcu in Model.Yolcular)
+        {
+            <tr>
+                <td>@yolcu.Ad @yolcu.Soyad</td>
+                <td>@yolcu.TcNo</td>
+                <td>@yolcu.KoltukNo</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="mt-4">
+    <a asp-controller="Rezervasyon" asp-action="MusteriRezervasyonlari" class="btn btn-info">Rezervasyonlarımı Görüntüle</a>
+    <a asp-controller="Rezervasyon" asp-action="IptalEt" asp-route-kod="@Model.RezervasyonKodu" class="btn btn-danger">Rezervasyon İptal Et</a>
+</div>

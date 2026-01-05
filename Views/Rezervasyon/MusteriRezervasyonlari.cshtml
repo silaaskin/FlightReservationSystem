@@ -1,0 +1,78 @@
+@* Views/Rezervasyon/MusteriRezervasyonlari.cshtml *@
+@model System.Collections.Generic.List<UcakBiletiRezervasyonSistemi.Models.Rezervasyon>
+@{
+    ViewData["Title"] = "Rezervasyonlarım";
+}
+
+<h2>Rezervasyonlarım</h2>
+<hr />
+
+@if (Model == null || Model.Count == 0)
+{
+    <div class="alert alert-info">
+        Henüz aktif bir rezervasyonunuz bulunmamaktadır.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Kod</th>
+                <th>Uçuş No</th>
+                <th>Tarih</th>
+                <th>Yolcu Sayısı</th>
+                <th>Tutar</th>
+                <th>Durum</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td><strong>@r.RezervasyonKodu</strong></td>
+                    <td>@r.UcusNo</td>
+                    <td>@r.RezervasyonTarihi.ToString("dd.MM.yyyy")</td>
+                    <td>@r.Yolcular.Count</td>
+                    <td>@r.OdemeTutari.ToString("C")</td>
+                    <td>
+                        @if (r.AktifMi)
+                        {
+                            <span class="badge bg-success">Aktif</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">İptal Edildi</span>
+
+                            @* Uçuş veya rezervasyon iptal mesajı varsa göster *@
+                            @if (!string.IsNullOrEmpty(r.Mesaj))
+                            {
+                                <div class="alert alert-warning mt-1 p-1">
+                                    @r.Mesaj
+                                </div>
+                            }
+                        }
+                    </td>
+                    <td>
+                        @* Detay görüntüleme linki *@
+                        <a asp-controller="Rezervasyon" asp-action="DetayGoster" 
+                           asp-route-kod="@r.RezervasyonKodu" 
+                           class="btn btn-info btn-sm">Detay</a>
+                        
+                        @if (r.AktifMi)
+                        {
+                            @* İptal etme linki *@
+                            <a asp-controller="Rezervasyon" asp-action="IptalEt" 
+                               asp-route-kod="@r.RezervasyonKodu" 
+                               class="btn btn-danger btn-sm" 
+                               onclick="return confirm('Bu rezervasyonu (@r.RezervasyonKodu) iptal etmek istediğinizden emin misiniz?');">
+                                İptal Et
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
