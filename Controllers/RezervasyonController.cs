@@ -109,6 +109,12 @@ namespace UcakBiletiRezervasyonSistemi.Controllers
                     RezervasyonTarihi = DateTime.Now
                 };
 
+                // Her yolcuya rezervasyon kodunu ata
+                foreach (var yolcu in yolcular)
+                {
+                    yolcu.RezervasyonKodu = yeniRezervasyon.RezervasyonKodu;
+                }
+
                 _rezervasyonRepo.RezervasyonEkle(yeniRezervasyon);
                 _ucusRepo.UcusGuncelle(ucus);
 
