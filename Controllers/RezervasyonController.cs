@@ -6,26 +6,34 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-// Controller: Müşteri uçuş arama, bilet seçimi ve rezervasyon işlemlerini yönetir
 namespace UcakBiletiRezervasyonSistemi.Controllers
 {
     public class RezervasyonController : Controller
     {
-        // Repository ve servis nesneleri
-        private readonly UcusRepository _ucusRepo = new UcusRepository();
-        private readonly RezervasyonRepository _rezervasyonRepo = new RezervasyonRepository();
-        private readonly FiyatlandirmaServisi _fiyatServisi = new FiyatlandirmaServisi();
-        private readonly KullaniciRepository _kullaniciRepo = new KullaniciRepository();
+        private readonly UcusRepository _ucusRepo;
+        private readonly RezervasyonRepository _rezervasyonRepo;
+        private readonly FiyatlandirmaServisi _fiyatServisi;
+        private readonly KullaniciRepository _kullaniciRepo;
 
-        // Ana sayfa: Önerilen uçuşları gösterir
+        public RezervasyonController(
+            UcusRepository ucusRepo, 
+            RezervasyonRepository rezervasyonRepo, 
+            FiyatlandirmaServisi fiyatServisi, 
+            KullaniciRepository kullaniciRepo)
+        {
+            _ucusRepo = ucusRepo;
+            _rezervasyonRepo = rezervasyonRepo;
+            _fiyatServisi = fiyatServisi;
+            _kullaniciRepo = kullaniciRepo;
+        }
+
         public IActionResult Index()
         {
             var onerilenUcuslar = _ucusRepo.UcusListele().Take(3).ToList();
-            ViewBag.FiyatServisi = _fiyatServisi; // Fiyat servisini view'e aktar
+            ViewBag.FiyatServisi = _fiyatServisi;
             return View(onerilenUcuslar);
         }
 
-        // Uçuş arama işlemi
         [HttpPost]
         public IActionResult UcusAra(string kalkis, string varis, DateTime tarih)
         {
@@ -34,132 +42,135 @@ namespace UcakBiletiRezervasyonSistemi.Controllers
             return View(bulunanUcuslar);
         }
 
-        // Uçuş detay ve tahmini fiyat
         public IActionResult Detay(string ucusNo)
         {
             var ucus = _ucusRepo.UcusGetir(ucusNo);
             if (ucus == null) return NotFound();
 
-            ViewBag.TahminiFiyat = _fiyatServisi.FiyatHesapla(ucus, 1); // Tek kişi fiyat
+            ViewBag.TahminiFiyat = _fiyatServisi.FiyatHesapla(ucus, 1);
             return View(ucus);
         }
 
-        // Yolcu bilgileri formu
         [HttpPost]
-        public IActionResult YolcuBilgileri(string ucusNo, int yolcuSayisi)
+        public IActionResult YolcuBilgileri(string ucusNo, int yolcuSayisi, string? kuponKodu = null)
         {
-            string musteriTc = HttpContext.Session.GetString("TcNo");
-            if (string.IsNullOrEmpty(musteriTc)) // Oturum kontrolü
-            {
-                TempData["Uyarı"] = "Lütfen giriş yapın.";
-                return RedirectToAction("Login", "Kullanici");
-            }
+            string? musteriTc = HttpContext.Session.GetString("TcNo");
+            if (string.IsNullOrEmpty(musteriTc)) return RedirectToAction("Login", "Kullanici");
 
             var ucus = _ucusRepo.UcusGetir(ucusNo);
-            if (ucus == null || yolcuSayisi <= 0 || yolcuSayisi > ucus.BosKoltukSayisi) // Kapasite kontrolü
+            if (ucus == null || yolcuSayisi <= 0 || yolcuSayisi > ucus.BosKoltukSayisi)
             {
                 TempData["Hata"] = "Geçersiz uçuş veya koltuk sayısı.";
                 return RedirectToAction("Index");
             }
 
-            // Bilgileri view'e aktar
             ViewBag.UcusNo = ucusNo;
             ViewBag.YolcuSayisi = yolcuSayisi;
             ViewBag.MusteriTc = musteriTc;
-            ViewBag.ToplamFiyat = _fiyatServisi.FiyatHesapla(ucus, yolcuSayisi);
+            ViewBag.ToplamFiyat = _fiyatServisi.FiyatHesapla(ucus, yolcuSayisi, null, kuponKodu);
             ViewBag.Koltuklar = ucus.Koltuklar;
+            ViewBag.KuponKodu = kuponKodu;
 
             return View();
         }
 
-        // Rezervasyon onaylama
         [HttpPost]
-        public IActionResult Onayla(string ucusNo, int yolcuSayisi, List<Yolcu> yolcular)
+        public IActionResult Onayla(string ucusNo, int yolcuSayisi, List<Yolcu> yolcular, string? kuponKodu = null)
         {
-            string musteriTc = HttpContext.Session.GetString("TcNo");
+            string? musteriTc = HttpContext.Session.GetString("TcNo");
             var ucus = _ucusRepo.UcusGetir(ucusNo);
 
-            // Temel doğrulama
-            if (string.IsNullOrEmpty(musteriTc) || ucus == null || yolcular == null || yolcuSayisi != yolcular.Count)
+            if (string.IsNullOrEmpty(musteriTc) || ucus == null || yolcular == null || yolcular.Count == 0)
             {
-                TempData["Hata"] = "Geçersiz işlem, eksik yolcu bilgisi veya oturum hatası.";
+                TempData["Hata"] = "Geçersiz rezervasyon bilgileri.";
                 return RedirectToAction("Index");
-            }
-
-            var secilenKoltuklar = yolcular.Select(y => y.KoltukNo).ToList();
-            if (secilenKoltuklar.Distinct().Count() != yolcuSayisi) // Koltuk benzersizliği
-            {
-                TempData["Hata"] = "Her yolcu için farklı bir koltuk seçimi yapmalısınız.";
-                return RedirectToAction("YolcuBilgileri", new { ucusNo = ucusNo, yolcuSayisi = yolcuSayisi });
             }
 
             try
             {
-                decimal sonFiyat = _fiyatServisi.FiyatHesapla(ucus, yolcuSayisi);
-
-                // Koltuk ayırma işlemi
                 foreach (var yolcu in yolcular)
                 {
                     if (!ucus.KoltukAyir(yolcu.KoltukNo))
-                        throw new Exception($"Koltuk {yolcu.KoltukNo} az önce ayrıldı veya geçersiz.");
+                    {
+                        TempData["Hata"] = $"Koltuk {yolcu.KoltukNo} zaten dolu veya geçersiz.";
+                        return RedirectToAction("YolcuBilgileri", new { ucusNo, yolcuSayisi });
+                    }
                 }
 
-                // Rezervasyon oluşturma ve kaydetme
+                decimal sonFiyat = _fiyatServisi.FiyatHesapla(ucus, yolcuSayisi, null, kuponKodu);
+                ucus.BosKoltukSayisi -= yolcular.Count;
+
                 var yeniRezervasyon = new Rezervasyon
                 {
                     UcusNo = ucusNo,
                     MusteriTcNo = musteriTc,
-                    OdemeTutari = sonFiyat,
-                    Yolcular = yolcular
+                    ToplamFiyat = sonFiyat,
+                    Yolcular = yolcular,
+                    RezervasyonTarihi = DateTime.Now
                 };
 
                 _rezervasyonRepo.RezervasyonEkle(yeniRezervasyon);
+                _ucusRepo.UcusGuncelle(ucus);
 
-                TempData["Basarili"] = $"Rezervasyonunuz {yeniRezervasyon.RezervasyonKodu} koduyla oluşturuldu.";
+                TempData["Basarili"] = "Rezervasyonunuz başarıyla oluşturuldu!";
                 return RedirectToAction("DetayGoster", new { kod = yeniRezervasyon.RezervasyonKodu });
             }
             catch (Exception ex)
             {
-                TempData["Hata"] = $"Rezervasyon yapılamadı: {ex.Message}";
-                return RedirectToAction("Detay", new { ucusNo = ucusNo });
+                TempData["Hata"] = "Rezervasyon oluşturulurken hata: " + ex.Message;
+                return RedirectToAction("Index");
             }
         }
 
-        // Rezervasyon iptal etme
-        public IActionResult IptalEt(string kod)
-        {
-            if (_rezervasyonRepo.RezervasyonIptalEt(kod))
-                TempData["Basarili"] = $"Rezervasyon {kod} iptal edildi ve koltuklar serbest bırakıldı.";
-            else
-                TempData["Hata"] = "Rezervasyon bulunamadı veya iptal edilmiş.";
-
-            return RedirectToAction("MusteriRezervasyonlari");
-        }
-
-        // Rezervasyon detay gösterme
         public IActionResult DetayGoster(string kod)
         {
-            string musteriTc = HttpContext.Session.GetString("TcNo");
-            if (string.IsNullOrEmpty(musteriTc)) // Oturum kontrolü
-                return RedirectToAction("Login", "Kullanici");
-
             var rezervasyon = _rezervasyonRepo.RezervasyonGetir(kod);
-            if (rezervasyon == null || rezervasyon.MusteriTcNo != musteriTc) // Kendi rezervasyonu mu?
-                return Unauthorized();
+            if (rezervasyon == null) return NotFound();
 
             ViewBag.Ucus = _ucusRepo.UcusGetir(rezervasyon.UcusNo);
             return View(rezervasyon);
         }
 
-        // Müşterinin tüm rezervasyonları
         public IActionResult MusteriRezervasyonlari()
         {
-            string musteriTc = HttpContext.Session.GetString("TcNo");
-            if (string.IsNullOrEmpty(musteriTc)) // Oturum kontrolü
-                return RedirectToAction("Login", "Kullanici");
+            string? musteriTc = HttpContext.Session.GetString("TcNo");
+            if (string.IsNullOrEmpty(musteriTc)) return RedirectToAction("Login", "Kullanici");
 
             var rezervasyonlar = _rezervasyonRepo.MusteriRezervasyonlariniListele(musteriTc);
             return View(rezervasyonlar);
+        }
+
+        public IActionResult IptalEt(string kod)
+        {
+            try
+            {
+                var rezervasyon = _rezervasyonRepo.RezervasyonGetir(kod);
+                if (rezervasyon != null && rezervasyon.AktifMi)
+                {
+                    var ucus = _ucusRepo.UcusGetir(rezervasyon.UcusNo);
+                    if (ucus != null)
+                    {
+                        foreach (var yolcu in rezervasyon.Yolcular)
+                        {
+                            ucus.KoltukIadeEt(yolcu.KoltukNo);
+                        }
+                        _ucusRepo.UcusGuncelle(ucus);
+                    }
+                    
+                    _rezervasyonRepo.RezervasyonIptalEt(kod);
+                    TempData["Basarili"] = "Rezervasyonunuz başarıyla iptal edildi.";
+                }
+                else
+                {
+                    TempData["Hata"] = "Rezervasyon bulunamadı veya zaten iptal edilmiş.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Hata"] = "İptal işlemi sırasında hata: " + ex.Message;
+            }
+
+            return RedirectToAction("MusteriRezervasyonlari");
         }
     }
 }

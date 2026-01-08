@@ -2,36 +2,31 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using UcakBiletiRezervasyonSistemi.Models;
 
-namespace UcakBiletiRezervasyonSistemi.Controllers;
-
-// HomeController: Genel sayfaları (ana sayfa, gizlilik, hata) yönetir
-public class HomeController : Controller
+namespace UcakBiletiRezervasyonSistemi.Controllers
 {
-    private readonly ILogger<HomeController> _logger; // Loglama için ILogger
-
-    // Constructor: Logger enjekte edilir
-    public HomeController(ILogger<HomeController> logger)
+    public class HomeController : Controller
     {
-        _logger = logger;
-    }
+        private readonly ILogger<HomeController> _logger;
 
-    // Ana sayfa
-    public IActionResult Index()
-    {
-        return View();
-    }
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
 
-    // Gizlilik politikası sayfası
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+        public IActionResult Index()
+        {
+            return View();
+        }
 
-    // Hata sayfası, ResponseCache devre dışı
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        // Hata ViewModel ile RequestId gönderilir
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
     }
 }

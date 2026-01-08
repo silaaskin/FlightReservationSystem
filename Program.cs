@@ -1,35 +1,46 @@
+using Microsoft.EntityFrameworkCore;
+using UcakBiletiRezervasyonSistemi.Data;
+using UcakBiletiRezervasyonSistemi.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // MVC servislerini ekle
 builder.Services.AddControllersWithViews();
 
-// --- Gerekli Servisler ---
-// 1. Session: Kullanıcı oturum verilerini saklamak için
-builder.Services.AddSession();
+// 1. Veritabanı Bağlantısı (MySQL)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-// 2. HttpContextAccessor: Razor'dan Session'a erişim (@inject) için
+// 2. Gerekli Servis ve Repository Kayıtları (DI)
+builder.Services.AddScoped<UcusRepository>();
+builder.Services.AddScoped<KullaniciRepository>();
+builder.Services.AddScoped<RezervasyonRepository>();
+builder.Services.AddScoped<FiyatlandirmaServisi>();
+
+// 3. Session Ayarları
+builder.Services.AddSession(options => {
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 builder.Services.AddHttpContextAccessor(); 
 
 var app = builder.Build();
 
-// HTTP pipeline yapılandırması
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error"); // Hata sayfası
-    app.UseHsts(); // Güvenli bağlantı zorunluluğu
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles(); // CSS/JS dosyalarını sunmak için
-
+app.UseStaticFiles();
 app.UseRouting();
-
-// 3. Session Middleware: Oturum verilerini okumak için
-app.UseSession(); 
-
+app.UseSession(); // Session middleware'i eklenmeli
 app.UseAuthorization();
 
-// 4. Varsayılan rota: Proje Login ekranı ile başlar
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Kullanici}/{action=Login}/{id?}");

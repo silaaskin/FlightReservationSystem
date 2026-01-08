@@ -1,25 +1,26 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace UcakBiletiRezervasyonSistemi.Models
 {
     public class Ucus
     {
-        public string UcusNo { get; set; } // Uçuş numarası
-        public string KalkisYeri { get; set; }
-        public string VarisYeri { get; set; }
+        [Key]
+        public string UcusNo { get; set; } = string.Empty;
+        public string KalkisYeri { get; set; } = string.Empty;
+        public string VarisYeri { get; set; } = string.Empty;
         public DateTime KalkisTarihiSaati { get; set; }
-
-        public int Kapasite { get; set; } // Toplam koltuk sayısı
-        public int BosKoltukSayisi { get; set; } // Boş koltuk sayısı
+        public int Kapasite { get; set; } 
+        public int BosKoltukSayisi { get; set; } 
         public decimal TemelFiyat { get; set; }
 
-        // Koltuklar artık Koltuk objesi olarak tutuluyor
+        [NotMapped]
         public Dictionary<string, Koltuk> Koltuklar { get; set; } = new Dictionary<string, Koltuk>();
 
-        // Parametresiz Constructor
-        public Ucus()
-        {
-        }
+        public Ucus() { }
 
-        // Parametreli Constructor
         public Ucus(string ucusNo, string kalkisYeri, string varisYeri, DateTime kalkisTarihiSaati, int kapasite, decimal temelFiyat)
         {
             UcusNo = ucusNo;
@@ -29,41 +30,47 @@ namespace UcakBiletiRezervasyonSistemi.Models
             Kapasite = kapasite;
             BosKoltukSayisi = kapasite;
             TemelFiyat = temelFiyat;
-
-            KoltuklariOlustur(kapasite); // Koltukları başlat
+            KoltuklariOlustur(kapasite);
         }
 
-        // Koltukların oluşturulması
-        private void KoltuklariOlustur(int kapasite)
+        public void KoltuklariOlustur(int kapasite)
         {
             Koltuklar.Clear();
-
+            
+            // A, B, C, D, E, F sırası (6 sütun)
             char[] siraHarfleri = { 'A', 'B', 'C', 'D', 'E', 'F' };
+            
+            // Kaç sıra gerekli? (her sırada 6 koltuk)
             int maxSira = (int)Math.Ceiling((double)kapasite / siraHarfleri.Length);
 
-            for (int sira = 1; sira <= maxSira; sira++)
+            int eklenmisSayisi = 0;
+
+            // Sıra sıra koltuk oluştur (1'den başla)
+            for (int sira = 1; sira <= maxSira && eklenmisSayisi < kapasite; sira++)
             {
                 foreach (char harf in siraHarfleri)
                 {
-                    if (Koltuklar.Count >= kapasite)
-                        break;
-
+                    if (eklenmisSayisi >= kapasite) break;
+                    
                     string koltukNo = $"{harf}{sira}";
-
-                    // İlk 2 sıra Business, diğerleri Ekonomi
-                    KoltukTip tip = sira <= 2 ? KoltukTip.Business : KoltukTip.Ekonomi;
-
-                    Koltuklar.Add(koltukNo, new Koltuk
-                    {
-                        No = koltukNo,
-                        Tip = tip,
-                        EkFiyat = tip == KoltukTip.Business ? 500m : 0m // Örnek ek fiyat
+                    
+                    // İlk 2 SIRA Business, geri kalanı Ekonomi
+                    KoltukTip tip = (sira <= 2) ? KoltukTip.Business : KoltukTip.Ekonomi;
+                    decimal ekFiyat = (tip == KoltukTip.Business) ? 500m : 0m;
+                    
+                    Koltuklar.Add(koltukNo, new Koltuk 
+                    { 
+                        No = koltukNo, 
+                        Tip = tip, 
+                        EkFiyat = ekFiyat,
+                        Dolu = false
                     });
+                    
+                    eklenmisSayisi++;
                 }
             }
         }
 
-        // Koltuk ayırma
         public bool KoltukAyir(string koltukNo)
         {
             if (Koltuklar.ContainsKey(koltukNo) && !Koltuklar[koltukNo].Dolu)
@@ -75,7 +82,6 @@ namespace UcakBiletiRezervasyonSistemi.Models
             return false;
         }
 
-        // Koltuk iade etme
         public void KoltukIadeEt(string koltukNo)
         {
             if (Koltuklar.ContainsKey(koltukNo) && Koltuklar[koltukNo].Dolu)

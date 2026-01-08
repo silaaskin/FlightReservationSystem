@@ -1,18 +1,17 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace UcakBiletiRezervasyonSistemi.Models
 {
-    // Soyut kullanıcı sınıfı: doğrudan nesne oluşturulamaz
     public abstract class Kullanici
     {
-        // Temel kullanıcı bilgileri
-        public string TcNo { get; set; } // TC Kimlik numarası
-        public string Ad { get; set; }   // Ad
-        public string Soyad { get; set; } // Soyad
-        public string Sifre { get; set; } // Şifre
+        [Key] // MySQL için Birincil Anahtar
+        public string TcNo { get; set; } = string.Empty;
+        public string Ad { get; set; }   = string.Empty;
+        public string Soyad { get; set; } = string.Empty;
+        public string Sifre { get; set; } = string.Empty;
 
-        // Soyut metot: Alt sınıflar kendi rolünü döndürmek zorunda
         public abstract string RolAdiGetir();
 
-        // Ortak davranış: Şifre doğrulama
         public bool SifreDogrula(string girilenSifre)
         {
             return Sifre == girilenSifre;

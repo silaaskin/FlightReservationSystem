@@ -1,27 +1,85 @@
 using UcakBiletiRezervasyonSistemi.Models;
-using System;
 
 namespace UcakBiletiRezervasyonSistemi.Services
 {
-    // Dinamik fiyatlandırma servisi
     public class FiyatlandirmaServisi
     {
-        public decimal FiyatHesapla(Ucus ucus, int yolcuSayisi)
+        public decimal FiyatHesapla(Ucus ucus, int yolcuSayisi, string? koltukNo = null, string? kuponKodu = null)
         {
-            decimal nihaiFiyat = ucus.TemelFiyat; // Temel bilet fiyatı
+            decimal biletFiyati = ucus.TemelFiyat;
 
-            // Doluluk oranına göre fiyat artırımı
-            decimal dolulukOrani = (decimal)(ucus.Kapasite - ucus.BosKoltukSayisi) / ucus.Kapasite;
-            if (dolulukOrani >= 0.90m) nihaiFiyat *= 1.30m; // %90+ doluluk → %30 zam
-            else if (dolulukOrani >= 0.80m) nihaiFiyat *= 1.15m; // %80+ doluluk → %15 zam
+            // 1. KOLTUK TİPİ ETKİSİ
+            if (!string.IsNullOrEmpty(koltukNo) && ucus.Koltuklar.ContainsKey(koltukNo))
+            {
+                biletFiyati += ucus.Koltuklar[koltukNo].EkFiyat;
+            }
 
-            // Kalkış tarihine göre fiyat ayarlaması
+            // 2. DOLULUK ORANI ETKİSİ
+            decimal doluluk = (decimal)(ucus.Kapasite - ucus.BosKoltukSayisi) / ucus.Kapasite;
+            if (doluluk >= 0.90m) 
+                biletFiyati *= 1.30m;
+            else if (doluluk >= 0.80m) 
+                biletFiyati *= 1.15m;
+
+            // 3. TARİH ETKİSİ
             TimeSpan kalanZaman = ucus.KalkisTarihiSaati - DateTime.Now;
-            if (kalanZaman.TotalDays < 7) nihaiFiyat *= 1.20m;   // 1 haftadan az → %20 zam
-            else if (kalanZaman.TotalDays > 60) nihaiFiyat *= 0.80m; // 60 günden fazla → %20 indirim
+            if (kalanZaman.TotalDays < 7) 
+                biletFiyati *= 1.20m;
+            else if (kalanZaman.TotalDays > 60) 
+                biletFiyati *= 0.85m;
 
-            // Yolcu sayısına göre toplam fiyat ve 2 ondalık basamak
-            return Math.Round(nihaiFiyat * yolcuSayisi, 2);
+            // 4. SEZON ETKİSİ
+            int ay = ucus.KalkisTarihiSaati.Month;
+            if ((ay >= 6 && ay <= 8) || ay == 12 || ay == 1)
+            {
+                biletFiyati *= 1.25m;
+            }
+            else if (ay == 4)
+            {
+                biletFiyati *= 1.10m;
+            }
+            else if (ay == 11 || ay == 2 || ay == 3)
+            {
+                biletFiyati *= 0.90m;
+            }
+
+            // 5. KUPON/PROMOSYON KODU ETKİSİ
+            if (!string.IsNullOrEmpty(kuponKodu))
+            {
+                kuponKodu = kuponKodu.ToUpper().Trim();
+                
+                switch (kuponKodu)
+                {
+                    case "YENIYIL2025":
+                        biletFiyati *= 0.80m;
+                        break;
+                    case "ILKUCUS":
+                        biletFiyati *= 0.85m;
+                        break;
+                    case "ERKENREZERVASYON":
+                        biletFiyati *= 0.90m;
+                        break;
+                    case "OGRENCI":
+                        biletFiyati *= 0.75m;
+                        break;
+                    case "GRUP":
+                        if (yolcuSayisi >= 5)
+                            biletFiyati *= 0.85m;
+                        break;
+                }
+            }
+
+            // 6. GRUP İNDİRİMİ
+            if (yolcuSayisi >= 10)
+            {
+                biletFiyati *= 0.90m;
+            }
+            else if (yolcuSayisi >= 5)
+            {
+                biletFiyati *= 0.95m;
+            }
+
+            return Math.Round(biletFiyati * yolcuSayisi, 2);
         }
     }
 }

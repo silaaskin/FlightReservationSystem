@@ -1,63 +1,63 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using UcakBiletiRezervasyonSistemi.Models;
 using UcakBiletiRezervasyonSistemi.Services;
 
 namespace UcakBiletiRezervasyonSistemi.Controllers
 {
-    // KullaniciController: Kullanıcı giriş/çıkış işlemlerini yönetir
     public class KullaniciController : Controller
     {
-        private readonly KullaniciRepository _kullaniciRepo; // Kullanıcı verilerine erişim
+        private readonly KullaniciRepository _repository;
 
-        // Constructor: Repository başlatılır
-        public KullaniciController()
+        public KullaniciController(KullaniciRepository repository)
         {
-            _kullaniciRepo = new KullaniciRepository();
+            _repository = repository;
         }
 
-        // Login sayfası (GET)
-        public IActionResult Login()
-        {
-            // Zaten giriş yapılmışsa rolüne göre yönlendir
-            if (!string.IsNullOrEmpty(HttpContext.Session.GetString("Rol")))
-            {
-                if (HttpContext.Session.GetString("Rol") == "Admin")
-                    return RedirectToAction("Index", "Admin");
-                return RedirectToAction("Index", "Rezervasyon");
-            }
-            return View();
-        }
+        public IActionResult Login() => View();
 
-        // Login işlemi (POST)
         [HttpPost]
         public IActionResult Login(string tcNo, string sifre)
         {
-            var kullanici = _kullaniciRepo.GirisYap(tcNo, sifre);
-
+            var kullanici = _repository.GirisYap(tcNo, sifre);
             if (kullanici != null)
             {
-                // Session bilgilerini ayarla
                 HttpContext.Session.SetString("TcNo", kullanici.TcNo);
-                HttpContext.Session.SetString("Rol", kullanici.RolAdiGetir());
                 HttpContext.Session.SetString("AdSoyad", $"{kullanici.Ad} {kullanici.Soyad}");
+                HttpContext.Session.SetString("Rol", kullanici.RolAdiGetir());
 
-                // Rolüne göre yönlendir
-                if (kullanici.RolAdiGetir() == "Admin")
+                if (kullanici is Admin)
                     return RedirectToAction("Index", "Admin");
-
-                return RedirectToAction("Index", "Home");
+                else
+                    return RedirectToAction("Index", "Rezervasyon");
             }
 
-            // Giriş hatalıysa mesaj göster
-            ViewBag.HataMesaji = "Hatalı TC veya Şifre. Tekrar deneyin.";
+            ViewBag.Hata = "TC No veya Şifre hatalı!";
             return View();
         }
 
-        // Logout işlemi
+        public IActionResult KayitOl() => View();
+
+        [HttpPost]
+        public IActionResult KayitOl(Musteri yeniMusteri)
+        {
+            try
+            {
+                _repository.MusteriEkle(yeniMusteri);
+                TempData["Mesaj"] = "Kaydınız başarıyla tamamlandı. Giriş yapabilirsiniz.";
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Hata = ex.Message;
+                return View(yeniMusteri);
+            }
+        }
+
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear(); // Session temizle
-            return RedirectToAction("Login", "Kullanici");
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login");
         }
     }
 }

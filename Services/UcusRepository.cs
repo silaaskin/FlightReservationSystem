@@ -1,4 +1,6 @@
+using UcakBiletiRezervasyonSistemi.Data;
 using UcakBiletiRezervasyonSistemi.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,74 +9,138 @@ namespace UcakBiletiRezervasyonSistemi.Services
 {
     public class UcusRepository
     {
-        private static Dictionary<string, Ucus> Ucuslar = new Dictionary<string, Ucus>(); // Tüm uçuşlar
+        private readonly AppDbContext _context;
 
-        public UcusRepository()
+        public UcusRepository(AppDbContext context)
         {
-            if (Ucuslar.Count == 0)
-            {
-                // Başlangıçta örnek uçuşları ekle
-                Ucuslar.Add("THY101", new Ucus("THY101", "İstanbul", "Ankara", new DateTime(2025, 12, 10, 14, 0, 0), 100, 500m));
-                Ucuslar.Add("PEG202", new Ucus("PEG202", "Ankara", "İzmir", new DateTime(2025, 12, 15, 09, 30, 0), 80, 450m));
-                Ucuslar.Add("AFL303", new Ucus("AFL303", "İzmir", "İstanbul", new DateTime(2025, 12, 10, 18, 0, 0), 120, 550m));
-            }
+            _context = context;
         }
 
-        // Yeni uçuş ekler
         public void UcusEkle(Ucus ucus)
         {
-            if (!Ucuslar.ContainsKey(ucus.UcusNo))
+            // ÖNEMLI: Aynı uçuş numarası kontrolü
+            var mevcutUcus = _context.Ucuslar.FirstOrDefault(u => u.UcusNo == ucus.UcusNo);
+            
+            if (mevcutUcus != null)
             {
-                var yeniUcus = new Ucus(
-                    ucus.UcusNo, ucus.KalkisYeri, ucus.VarisYeri, ucus.KalkisTarihiSaati, ucus.Kapasite, ucus.TemelFiyat);
+                throw new Exception($"'{ucus.UcusNo}' numaralı uçuş zaten sistemde kayıtlı. Lütfen farklı bir uçuş numarası kullanın.");
+            }
 
-                Ucuslar.Add(yeniUcus.UcusNo, yeniUcus);
+            if (ucus.BosKoltukSayisi == 0) 
+                ucus.BosKoltukSayisi = ucus.Kapasite;
+            
+            ucus.KoltuklariOlustur(ucus.Kapasite);
+            
+            _context.Ucuslar.Add(ucus);
+            _context.SaveChanges();
+        }
+
+        public List<Ucus> UcusListele()
+        {
+            var ucuslar = _context.Ucuslar.OrderBy(u => u.KalkisTarihiSaati).ToList();
+            
+            foreach (var ucus in ucuslar)
+            {
+                ucus.KoltuklariOlustur(ucus.Kapasite);
+                DoluKoltuklariIsaretle(ucus);
+            }
+            
+            return ucuslar;
+        }
+
+        public Ucus? UcusGetir(string ucusNo)
+        {
+            var ucus = _context.Ucuslar.FirstOrDefault(u => u.UcusNo == ucusNo);
+            
+            if (ucus != null)
+            {
+                ucus.KoltuklariOlustur(ucus.Kapasite);
+                DoluKoltuklariIsaretle(ucus);
+            }
+            
+            return ucus;
+        }
+
+        private void DoluKoltuklariIsaretle(Ucus ucus)
+        {
+            try
+            {
+                var doluKoltuklar = _context.Rezervasyonlar
+                    .Where(r => r.UcusNo == ucus.UcusNo && r.AktifMi)
+                    .SelectMany(r => r.Yolcular.Select(y => y.KoltukNo))
+                    .ToList();
+
+                foreach (var koltukNo in doluKoltuklar)
+                {
+                    if (ucus.Koltuklar.ContainsKey(koltukNo))
+                    {
+                        ucus.Koltuklar[koltukNo].Dolu = true;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Sessizce devam et
             }
         }
 
-        // Tüm uçuşları listeler (tarihe göre sıralı)
-        public List<Ucus> UcusListele()
-        {
-            return Ucuslar.Values.OrderBy(u => u.KalkisTarihiSaati).ToList();
-        }
-
-        // Uçuş koduna göre getirir
-        public Ucus UcusGetir(string ucusNo)
-        {
-            return Ucuslar.ContainsKey(ucusNo) ? Ucuslar[ucusNo] : null;
-        }
-
-        // Uçuş arama (kalkış, varış, tarih ve boş koltuk kontrolü)
         public List<Ucus> UcusAra(string kalkis, string varis, DateTime tarih)
         {
-            return Ucuslar.Values
-                .Where(u => u.KalkisYeri.Equals(kalkis, StringComparison.OrdinalIgnoreCase)
-                            && u.VarisYeri.Equals(varis, StringComparison.OrdinalIgnoreCase)
+            var ucuslar = _context.Ucuslar
+                .Where(u => u.KalkisYeri.ToLower() == kalkis.ToLower()
+                            && u.VarisYeri.ToLower() == varis.ToLower()
                             && u.KalkisTarihiSaati.Date == tarih.Date
                             && u.BosKoltukSayisi > 0)
                 .ToList();
+
+            foreach (var ucus in ucuslar)
+            {
+                ucus.KoltuklariOlustur(ucus.Kapasite);
+                DoluKoltuklariIsaretle(ucus);
+            }
+
+            return ucuslar;
         }
 
-        // Uçuş iptal (repository'den siler)
         public bool UcusIptalEt(string ucusNo)
         {
-            if (Ucuslar.ContainsKey(ucusNo))
+            try
             {
-                Ucuslar.Remove(ucusNo);
-                return true;
+                var ucus = _context.Ucuslar.FirstOrDefault(u => u.UcusNo == ucusNo);
+                if (ucus != null)
+                {
+                    _context.Ucuslar.Remove(ucus);
+                    _context.SaveChanges();
+                    return true;
+                }
+                return false;
             }
-            return false;
+            catch (Exception ex)
+            {
+                throw new Exception("Uçuş silinirken hata: " + ex.Message);
+            }
         }
 
-        // Uçuş güncelleme
         public bool UcusGuncelle(Ucus guncellenmisUcus)
         {
-            if (Ucuslar.ContainsKey(guncellenmisUcus.UcusNo))
+            try
             {
-                Ucuslar[guncellenmisUcus.UcusNo] = guncellenmisUcus;
-                return true;
+                var ucus = _context.Ucuslar.FirstOrDefault(u => u.UcusNo == guncellenmisUcus.UcusNo);
+                if (ucus != null)
+                {
+                    ucus.BosKoltukSayisi = guncellenmisUcus.BosKoltukSayisi;
+                    ucus.KalkisTarihiSaati = guncellenmisUcus.KalkisTarihiSaati;
+                    ucus.TemelFiyat = guncellenmisUcus.TemelFiyat;
+                    
+                    _context.SaveChanges();
+                    return true;
+                }
+                return false;
             }
-            return false;
+            catch (Exception ex)
+            {
+                throw new Exception("Uçuş güncellenirken hata: " + ex.Message);
+            }
         }
     }
 }

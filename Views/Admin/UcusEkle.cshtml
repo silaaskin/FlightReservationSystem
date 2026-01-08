@@ -1,4 +1,3 @@
-@* Views/Admin/UcusEkle.cshtml *@
 @model UcakBiletiRezervasyonSistemi.Models.Ucus
 @{
     ViewData["Title"] = "Yeni Uçuş Ekle";
@@ -7,22 +6,31 @@
 <h2 class="mb-3">@ViewData["Title"]</h2>
 <hr />
 
+@* Sadece TempData'dan hata göster, ViewBag'den değil *@
+@if (TempData["Hata"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle"></i> @TempData["Hata"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 <form asp-controller="Admin" asp-action="UcusEkle" method="post">
     <div class="row mb-3">
         <div class="col-md-6">
             <label asp-for="UcusNo" class="form-label">Uçuş Numarası</label>
-            <input asp-for="UcusNo" class="form-control" required />
+            <input asp-for="UcusNo" class="form-control" placeholder="Örn: TK001" required />
         </div>
         <div class="col-md-6">
             <label asp-for="KalkisYeri" class="form-label">Kalkış Yeri</label>
-            <input asp-for="KalkisYeri" class="form-control" required />
+            <input asp-for="KalkisYeri" class="form-control" placeholder="Örn: İstanbul" required />
         </div>
     </div>
 
     <div class="row mb-3">
         <div class="col-md-6">
             <label asp-for="VarisYeri" class="form-label">Varış Yeri</label>
-            <input asp-for="VarisYeri" class="form-control" required />
+            <input asp-for="VarisYeri" class="form-control" placeholder="Örn: Antalya" required />
         </div>
         <div class="col-md-6">
             <label asp-for="KalkisTarihiSaati" class="form-label">Kalkış Tarih ve Saati</label>
@@ -33,16 +41,20 @@
     <div class="row mb-3">
         <div class="col-md-6">
             <label asp-for="Kapasite" class="form-label">Kapasite (Koltuk Sayısı)</label>
-            <input asp-for="Kapasite" type="number" min="10" class="form-control" required />
+            <input asp-for="Kapasite" type="number" min="10" max="300" class="form-control" placeholder="Örn: 180" required />
         </div>
         <div class="col-md-6">
             <label asp-for="TemelFiyat" class="form-label">Temel Fiyat (TL)</label>
-            <input asp-for="TemelFiyat" type="number" step="0.01" min="100" class="form-control" required />
+            <input asp-for="TemelFiyat" type="number" step="0.01" min="100" class="form-control" placeholder="Örn: 1500" required />
         </div>
     </div>
 
     <div class="mt-4">
-        <button type="submit" class="btn btn-success">Uçuşu Kaydet</button>
-        <a asp-action="Index" class="btn btn-secondary ms-2">İptal</a>
+        <button type="submit" class="btn btn-success">
+            <i class="fas fa-save"></i> Uçuşu Kaydet
+        </button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">
+            <i class="fas fa-times"></i> İptal
+        </a>
     </div>
 </form>

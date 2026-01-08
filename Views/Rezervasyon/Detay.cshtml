@@ -1,38 +1,88 @@
-@* Views/Rezervasyon/Detay.cshtml *@
 @model UcakBiletiRezervasyonSistemi.Models.Ucus
 @{
     ViewData["Title"] = "Rezervasyon Detay";
-    // ViewBag'deki decimal türünü doğru cast ediyoruz.
     var tahminiFiyat = (decimal)ViewBag.TahminiFiyat; 
 }
+
+<style>
+.kupon-toggle-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+.kupon-toggle-btn:hover {
+    background: #218838;
+    transform: translateY(-2px);
+}
+.kupon-section {
+    display: none;
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
+}
+.kupon-section.show {
+    display: block;
+}
+</style>
 
 <h2>@Model.UcusNo Numaralı Uçuş Detayları</h2>
 <hr />
 
 <div class="card">
     <div class="card-body">
-        <h5 class="card-title">@Model.KalkisYeri -> @Model.VarisYeri</h5>
+        <h5 class="card-title"><i class="fas fa-plane"></i> @Model.KalkisYeri → @Model.VarisYeri</h5>
         <p><strong>Tarih:</strong> @Model.KalkisTarihiSaati.ToString("dd.MM.yyyy HH:mm")</p>
         <p><strong>Kalan Koltuk:</strong> @Model.BosKoltukSayisi</p>
-        <p><strong>Tahmini Fiyat (1 Kişi):</strong> <span class="badge bg-success">@tahminiFiyat.ToString("C")</span></p>
+        <p><strong>Tahmini Fiyat (1 Kişi):</strong> <span class="badge bg-success fs-5">@tahminiFiyat.ToString("C")</span></p>
     </div>
 </div>
 
 <h4 class="mt-4">Biletinizi Şimdi Ayırın</h4>
 
-@* GÜNCELLEME: Form, verileri Yolcu Bilgileri formunu gösterecek olan YolcuBilgileri metoduna gönderir. *@
-<form asp-controller="Rezervasyon" asp-action="YolcuBilgileri" method="post">
-    
-    @* UcusNo'yu gizli alan olarak gönderiyoruz (name="ucusNo" ile) *@
+<form asp-controller="Rezervasyon" asp-action="YolcuBilgileri" method="post" id="rezervasyonForm">
     <input type="hidden" name="ucusNo" value="@Model.UcusNo" />
 
-    <div class="form-group">
-        <label for="yolcuSayisi">Yolcu Sayısı (Max @Model.BosKoltukSayisi)</label>
-        @* Yolcu Sayısı için name="yolcuSayisi" ile gönderiyoruz *@
-        <input type="number" name="yolcuSayisi" class="form-control" min="1" max="@Model.BosKoltukSayisi" required />
+    <div class="form-group mb-3">
+        <label for="yolcuSayisi"><i class="fas fa-users"></i> Yolcu Sayısı (Max @Model.BosKoltukSayisi)</label>
+        <input type="number" name="yolcuSayisi" id="yolcuSayisi" class="form-control" min="1" max="@Model.BosKoltukSayisi" required />
+    </div>
+
+    <div class="form-group mb-3">
+        <button type="button" class="kupon-toggle-btn" onclick="toggleKupon()">
+            <i class="fas fa-ticket-alt"></i> İndirim Kuponu Kullan
+        </button>
+        
+        <div class="kupon-section" id="kuponSection">
+            <label for="kuponKodu"><i class="fas fa-percent"></i> Kupon Kodu</label>
+            <input type="text" name="kuponKodu" id="kuponKodu" class="form-control" placeholder="Kupon kodunuzu girin" style="text-transform: uppercase;" />
+            <small class="text-muted mt-2 d-block">
+                <strong>Aktif Kuponlar:</strong><br>
+                <span class="badge bg-primary">YENIYIL2025</span> %20 | 
+                <span class="badge bg-primary">ILKUCUS</span> %15 | 
+                <span class="badge bg-primary">ERKENREZERVASYON</span> %10 | 
+                <span class="badge bg-primary">OGRENCI</span> %25 | 
+                <span class="badge bg-primary">GRUP</span> %15 (5+ kişi)
+            </small>
+        </div>
     </div>
     
-    <br />
-    <button type="submit" class="btn btn-warning">Yolcu Bilgilerini Gir</button>
-    <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+    <button type="submit" class="btn btn-warning btn-lg w-100">
+        <i class="fas fa-arrow-right"></i> Devam Et ve Yolcu Bilgilerini Gir
+    </button>
+    <a asp-action="Index" class="btn btn-secondary mt-2">
+        <i class="fas fa-arrow-left"></i> Geri Dön
+    </a>
 </form>
+
+<script>
+function toggleKupon() {
+    document.getElementById('kuponSection').classList.toggle('show');
+}
+</script>

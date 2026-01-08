@@ -6,9 +6,9 @@
     ViewData["Title"] = ViewData["Title"] ?? "Ana Sayfa";
     
     // Session'dan kullanıcı bilgilerini alma
-    var tcNo = HttpContextAccessor.HttpContext.Session.GetString("TcNo");
-    var adSoyad = HttpContextAccessor.HttpContext.Session.GetString("AdSoyad");
-    var rol = HttpContextAccessor.HttpContext.Session.GetString("Rol");
+var tcNo = HttpContextAccessor.HttpContext?.Session?.GetString("TcNo");
+    var adSoyad = HttpContextAccessor.HttpContext?.Session?.GetString("AdSoyad");
+    var rol = HttpContextAccessor.HttpContext?.Session?.GetString("Rol");
     
     // Kullanıcının giriş yapıp yapmadığını kontrol et
     var isLoggedIn = !string.IsNullOrEmpty(tcNo);

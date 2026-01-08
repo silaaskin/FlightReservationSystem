@@ -1,11 +1,17 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace UcakBiletiRezervasyonSistemi.Models
 {
-    // Rezervasyon içindeki tek bir yolcuyu temsil eder
     public class Yolcu
     {
-        public string Ad { get; set; }       // Yolcunun adı
-        public string Soyad { get; set; }    // Yolcunun soyadı
-        public string TcNo { get; set; }     // Yolcunun TC Kimlik numarası
-        public string KoltukNo { get; set; } // Yolcuya ayrılan koltuk numarası
+        [Key]
+        public int Id { get; set; }
+        public string RezervasyonKodu { get; set; } = string.Empty;
+        public string Ad { get; set; } = string.Empty;
+        public string Soyad { get; set; } = string.Empty;
+        public string TcNo { get; set; } = string.Empty;
+        public string KoltukNo { get; set; } = string.Empty;
+        public string? KoltukTipi { get; set; }
+        public decimal Fiyat { get; set; }
     }
 }

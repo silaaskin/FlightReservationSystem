@@ -1,17 +1,12 @@
-@* Views/Rezervasyon/Index.cshtml *@
 @model System.Collections.Generic.List<UcakBiletiRezervasyonSistemi.Models.Ucus>
-
-@* Fiyat Servisi'ne erişim için ViewBag'den alıyoruz *@
 @{
     ViewData["Title"] = "Uçuş Arama ve Öneriler";
-    // Bu, Controller'daki Index metodu tarafından atanan FiyatlandirmaServisi nesnesidir.
     var fiyatServisi = (UcakBiletiRezervasyonSistemi.Services.FiyatlandirmaServisi)ViewBag.FiyatServisi;
 }
 
 <h2><i class="fas fa-search"></i> Uçuş Arama</h2>
 <hr />
 
-@* --- Arama Formu --- *@
 <form asp-controller="Rezervasyon" asp-action="UcusAra" method="post" class="mb-5 p-4 border rounded shadow-sm">
     <div class="row">
         <div class="col-md-4 form-group mb-3">
@@ -30,8 +25,6 @@
     </div>
 </form>
 
-@* --- Önerilen Uçuşlar --- *@
-
 @if (Model != null && Model.Count > 0)
 {
     <h3 class="mb-4"><i class="fas fa-star"></i> Sizin İçin Önerilen Uçuşlar</h3>
@@ -42,7 +35,7 @@
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm h-100 border-info">
                     <div class="card-header bg-info text-white">
-                        <i class="fas fa-route"></i> Öneri: **@ucus.KalkisYeri &rarr; @ucus.VarisYeri**
+                        <i class="fas fa-route"></i> <strong>@ucus.KalkisYeri → @ucus.VarisYeri</strong>
                     </div>
                     <div class="card-body">
                         <p>Uçuş No: <strong>@ucus.UcusNo</strong></p>
@@ -51,7 +44,6 @@
                     </div>
                     <div class="card-footer d-flex justify-content-between align-items-center">
                         <span class="h5 text-primary">
-                            @* Dinamik fiyatı hesapla ve göster *@
                             @(fiyatServisi.FiyatHesapla(ucus, 1).ToString("C"))
                         </span>
                         <a asp-controller="Rezervasyon" asp-action="Detay" asp-route-ucusNo="@ucus.UcusNo" class="btn btn-warning btn-sm">Bilet Al</a>

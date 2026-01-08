@@ -1,5 +1,4 @@
 @model UcakBiletiRezervasyonSistemi.Models.Ucus
-
 @{
     ViewData["Title"] = "Uçuş Detayı";
 }
@@ -22,7 +21,7 @@
     </tr>
     <tr>
         <th>Kalkış Tarihi</th>
-        <td>@Model.KalkisTarihiSaati.ToString("g")</td>
+        <td>@Model.KalkisTarihiSaati.ToString("dd.MM.yyyy HH:mm")</td>
     </tr>
     <tr>
         <th>Kapasite</th>

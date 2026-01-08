@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/silaaskin/Desktop/UcakBiletiRezervasyonSistemi/UcakBiletiRezervasyonSistemi.csproj": {}
+    "/Users/silaaskin/Desktop/FlightReservationSystem/UcakBiletiRezervasyonSistemi.csproj": {}
   },
   "projects": {
-    "/Users/silaaskin/Desktop/UcakBiletiRezervasyonSistemi/UcakBiletiRezervasyonSistemi.csproj": {
+    "/Users/silaaskin/Desktop/FlightReservationSystem/UcakBiletiRezervasyonSistemi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/silaaskin/Desktop/UcakBiletiRezervasyonSistemi/UcakBiletiRezervasyonSistemi.csproj",
+        "projectUniqueName": "/Users/silaaskin/Desktop/FlightReservationSystem/UcakBiletiRezervasyonSistemi.csproj",
         "projectName": "UcakBiletiRezervasyonSistemi",
-        "projectPath": "/Users/silaaskin/Desktop/UcakBiletiRezervasyonSistemi/UcakBiletiRezervasyonSistemi.csproj",
+        "projectPath": "/Users/silaaskin/Desktop/FlightReservationSystem/UcakBiletiRezervasyonSistemi.csproj",
         "packagesPath": "/Users/silaaskin/.nuget/packages/",
-        "outputPath": "/Users/silaaskin/Desktop/UcakBiletiRezervasyonSistemi/obj/",
+        "outputPath": "/Users/silaaskin/Desktop/FlightReservationSystem/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/silaaskin/.nuget/NuGet/NuGet.Config"
@@ -43,6 +43,18 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Pomelo.EntityFrameworkCore.MySql": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

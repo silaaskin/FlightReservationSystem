@@ -1,4 +1,3 @@
-@* Views/Rezervasyon/DetayGoster.cshtml *@
 @model UcakBiletiRezervasyonSistemi.Models.Rezervasyon
 @{
     ViewData["Title"] = "Rezervasyon Detay";
@@ -8,7 +7,6 @@
 <h2>Rezervasyon Detayları</h2>
 <hr />
 
-@* Başarılı veya İptal Durumu Mesajı *@
 @if (Model.AktifMi)
 {
     <div class="alert alert-success">
@@ -30,7 +28,7 @@ else
             </div>
             <div class="card-body">
                 <p><strong>Uçuş No:</strong> @ucus.UcusNo</p>
-                <p><strong>Rota:</strong> @ucus.KalkisYeri &rarr; @ucus.VarisYeri</p>
+                <p><strong>Rota:</strong> @ucus.KalkisYeri → @ucus.VarisYeri</p>
                 <p><strong>Tarih:</strong> @ucus.KalkisTarihiSaati.ToString("dd.MM.yyyy HH:mm")</p>
             </div>
         </div>
@@ -44,7 +42,7 @@ else
             <div class="card-body">
                 <p><strong>Rezervasyon Tarihi:</strong> @Model.RezervasyonTarihi.ToString("dd.MM.yyyy HH:mm")</p>
                 <p><strong>Müşteri TC:</strong> @Model.MusteriTcNo</p>
-                <p><strong>Toplam Tutar:</strong> <span class="badge bg-danger">@Model.OdemeTutari.ToString("C")</span></p>
+                <p><strong>Toplam Tutar:</strong> <span class="badge bg-danger">@Model.ToplamFiyat.ToString("C")</span></p>
             </div>
         </div>
     </div>
@@ -73,5 +71,8 @@ else
 
 <div class="mt-4">
     <a asp-controller="Rezervasyon" asp-action="MusteriRezervasyonlari" class="btn btn-info">Rezervasyonlarımı Görüntüle</a>
-    <a asp-controller="Rezervasyon" asp-action="IptalEt" asp-route-kod="@Model.RezervasyonKodu" class="btn btn-danger">Rezervasyon İptal Et</a>
+    @if (Model.AktifMi)
+    {
+        <a asp-controller="Rezervasyon" asp-action="IptalEt" asp-route-kod="@Model.RezervasyonKodu" class="btn btn-danger" onclick="return confirm('Rezervasyonu iptal etmek istediğinize emin misiniz?');">Rezervasyon İptal Et</a>
+    }
 </div>

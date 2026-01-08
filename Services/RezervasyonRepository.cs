@@ -1,4 +1,6 @@
+using UcakBiletiRezervasyonSistemi.Data;
 using UcakBiletiRezervasyonSistemi.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,70 +9,104 @@ namespace UcakBiletiRezervasyonSistemi.Services
 {
     public class RezervasyonRepository
     {
-        private static List<Rezervasyon> Rezervasyonlar = new List<Rezervasyon>(); // Statik rezervasyon listesi
-        private readonly UcusRepository _ucusRepository = new UcusRepository(); // Uçuş verisine erişim
+        private readonly AppDbContext _context;
 
-        // Yeni rezervasyon ekler
+        public RezervasyonRepository(AppDbContext context)
+        {
+            _context = context;
+        }
+
         public void RezervasyonEkle(Rezervasyon rezervasyon)
         {
             if (rezervasyon.Yolcular == null || rezervasyon.Yolcular.Count == 0)
                 throw new Exception("Rezervasyon için en az bir yolcu gereklidir.");
 
-            var ucus = _ucusRepository.UcusGetir(rezervasyon.UcusNo);
-            if (ucus == null)
-                throw new Exception("Rezervasyon yapılmak istenen uçuş bulunamadı.");
+            if (rezervasyon.RezervasyonTarihi == default(DateTime))
+            {
+                rezervasyon.RezervasyonTarihi = DateTime.Now;
+            }
 
-            Rezervasyonlar.Add(rezervasyon);
+            _context.Rezervasyonlar.Add(rezervasyon);
+            _context.SaveChanges();
         }
 
-        // Rezervasyon koduna göre getirir
-        public Rezervasyon RezervasyonGetir(string rezervasyonKodu)
+        public Rezervasyon? RezervasyonGetir(string rezervasyonKodu)
         {
-            return Rezervasyonlar.FirstOrDefault(r => r.RezervasyonKodu == rezervasyonKodu);
+            try
+            {
+                return _context.Rezervasyonlar
+                    .Include(r => r.Yolcular)
+                    .FirstOrDefault(r => r.RezervasyonKodu == rezervasyonKodu);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
-        // Belirli müşterinin tüm rezervasyonlarını listeler
         public List<Rezervasyon> MusteriRezervasyonlariniListele(string musteriTcNo)
         {
-            return Rezervasyonlar
-                .Where(r => r.MusteriTcNo == musteriTcNo)
-                .ToList();
-        }
-
-        // Rezervasyonu iptal eder ve koltukları iade eder
-        public bool RezervasyonIptalEt(string rezervasyonKodu, string mesaj = null)
-        {
-            var rezervasyon = RezervasyonGetir(rezervasyonKodu);
-            if (rezervasyon != null && rezervasyon.AktifMi)
+            try
             {
-                rezervasyon.AktifMi = false;
-                rezervasyon.Mesaj = !string.IsNullOrEmpty(mesaj) 
-                    ? mesaj 
-                    : $"Uçuş {rezervasyon.UcusNo} iptal edilmiştir.";
-
-                var ucus = _ucusRepository.UcusGetir(rezervasyon.UcusNo);
-                if (ucus != null)
-                {
-                    foreach (var yolcu in rezervasyon.Yolcular)
-                        ucus.KoltukIadeEt(yolcu.KoltukNo); // Koltuk iade işlemi
-                }
-
-                return true;
+                return _context.Rezervasyonlar
+                    .Include(r => r.Yolcular)
+                    .Where(r => r.MusteriTcNo == musteriTcNo)
+                    .OrderByDescending(r => r.RezervasyonTarihi)
+                    .ToList();
             }
-            return false;
+            catch (Exception)
+            {
+                return new List<Rezervasyon>();
+            }
         }
 
-        // Uçuş iptal edildiğinde ilgili rezervasyonları pasif yapar ve mesaj bırakır
+        public bool RezervasyonIptalEt(string rezervasyonKodu, string? mesaj = null)
+        {
+            try
+            {
+                var rezervasyon = RezervasyonGetir(rezervasyonKodu);
+                if (rezervasyon != null && rezervasyon.AktifMi)
+                {
+                    rezervasyon.AktifMi = false;
+                    rezervasyon.Mesaj = !string.IsNullOrEmpty(mesaj) 
+                        ? mesaj 
+                        : $"Rezervasyon iptal edildi.";
+
+                    var ucus = _context.Ucuslar.FirstOrDefault(u => u.UcusNo == rezervasyon.UcusNo);
+                    if (ucus != null)
+                    {
+                        ucus.BosKoltukSayisi += rezervasyon.Yolcular.Count;
+                    }
+
+                    _context.SaveChanges();
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public void UcusIptalEdildi(string ucusNo)
         {
-            var iptalRezervasyonlar = Rezervasyonlar
-                .Where(r => r.UcusNo == ucusNo && r.AktifMi)
-                .ToList();
-
-            foreach (var rez in iptalRezervasyonlar)
+            try
             {
-                rez.AktifMi = false;
-                rez.Mesaj = $"Üzgünüz, {rez.UcusNo} numaralı uçuşunuz iptal edilmiştir.";
+                var iptalRezervasyonlar = _context.Rezervasyonlar
+                    .Where(r => r.UcusNo == ucusNo && r.AktifMi)
+                    .ToList();
+
+                foreach (var rez in iptalRezervasyonlar)
+                {
+                    rez.AktifMi = false;
+                    rez.Mesaj = $"Üzgünüz, {rez.UcusNo} numaralı uçuşunuz iptal edilmiştir.";
+                }
+                _context.SaveChanges();
+            }
+            catch (Exception)
+            {
+                // Sessizce devam et
             }
         }
     }
