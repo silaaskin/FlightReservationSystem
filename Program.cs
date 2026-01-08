@@ -18,11 +18,17 @@ builder.Services.AddScoped<KullaniciRepository>();
 builder.Services.AddScoped<RezervasyonRepository>();
 builder.Services.AddScoped<FiyatlandirmaServisi>();
 
-// 3. Session Ayarları
+// 3. Data Protection (Session cookie hatalarını önlemek için)
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "keys")))
+    .SetApplicationName("UcakBiletiRezervasyonSistemi");
+
+// 4. Session Ayarları
 builder.Services.AddSession(options => {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.Name = ".UcakRezervasyonSistemi.Session";
 });
 builder.Services.AddHttpContextAccessor(); 
 
