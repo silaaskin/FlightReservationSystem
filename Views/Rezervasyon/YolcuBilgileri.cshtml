@@ -195,7 +195,21 @@
         $('.koltuk-secilebilir').on('click', function() {
             const seatKey = $(this).data('koltuk-key');
             const ekFiyat = parseFloat($(this).data('ek-fiyat')) || 0;
-            
+
+            // Tıklanan koltuk zaten seçiliyse, o yolcuyu aktif yap ve işlem yapma
+            const alreadySelected = $(this).hasClass('bg-warning');
+            if (alreadySelected) {
+                // Bu koltuğu seçen yolcuyu bul ve aktif yap
+                $('.koltuk-dropdown').each(function(idx) {
+                    if ($(this).val() === seatKey) {
+                        $('.yolcu-card').removeClass('active');
+                        $(`.yolcu-card[data-yolcu-id="${idx}"]`).addClass('active');
+                        return false; // break
+                    }
+                });
+                return;
+            }
+
             // Hangi yolcunun kartına tıklandığını bul
             let aktifYolcu = -1;
             $('.yolcu-card').each(function(idx) {
@@ -203,7 +217,7 @@
                     aktifYolcu = idx;
                 }
             });
-            
+
             // Eğer aktif yolcu yoksa ilk boş yolcuyu bul
             if (aktifYolcu === -1) {
                 for (let i = 0; i < MAX_SEATS; i++) {
@@ -213,9 +227,12 @@
                     }
                 }
             }
-            
+
             if (aktifYolcu !== -1) {
                 selectSeatForPassenger(seatKey, aktifYolcu, ekFiyat);
+                // Seçim yapılan yolcu kartını aktif tut
+                $('.yolcu-card').removeClass('active');
+                $(`.yolcu-card[data-yolcu-id="${aktifYolcu}"]`).addClass('active');
             }
         });
 

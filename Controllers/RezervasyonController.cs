@@ -88,6 +88,8 @@ namespace UcakBiletiRezervasyonSistemi.Controllers
 
             try
             {
+                // Yolcu bilgilerini tamamla ve koltuk ayır
+                decimal toplamYolcuFiyati = 0;
                 foreach (var yolcu in yolcular)
                 {
                     if (!ucus.KoltukAyir(yolcu.KoltukNo))
@@ -95,8 +97,24 @@ namespace UcakBiletiRezervasyonSistemi.Controllers
                         TempData["Hata"] = $"Koltuk {yolcu.KoltukNo} zaten dolu veya geçersiz.";
                         return RedirectToAction("YolcuBilgileri", new { ucusNo, yolcuSayisi });
                     }
+
+                    // Koltuk tipini ve fiyatını belirle
+                    if (ucus.Koltuklar.ContainsKey(yolcu.KoltukNo))
+                    {
+                        var koltuk = ucus.Koltuklar[yolcu.KoltukNo];
+                        yolcu.KoltukTipi = koltuk.Tip.ToString();
+                        yolcu.Fiyat = ucus.TemelFiyat + koltuk.EkFiyat;
+                        toplamYolcuFiyati += yolcu.Fiyat;
+                    }
+                    else
+                    {
+                        yolcu.KoltukTipi = "Ekonomi";
+                        yolcu.Fiyat = ucus.TemelFiyat;
+                        toplamYolcuFiyati += yolcu.Fiyat;
+                    }
                 }
 
+                // Kupon varsa indirim uygula
                 decimal sonFiyat = _fiyatServisi.FiyatHesapla(ucus, yolcuSayisi, null, kuponKodu);
                 ucus.BosKoltukSayisi -= yolcular.Count;
 

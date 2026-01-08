@@ -86,6 +86,12 @@ namespace UcakBiletiRezervasyonSistemi.Services
 
         public List<Ucus> UcusAra(string kalkis, string varis, DateTime tarih)
         {
+            // Geçmiş tarihe rezervasyon yapılmasını engelle
+            if (tarih.Date < DateTime.Now.Date)
+            {
+                return new List<Ucus>();
+            }
+
             var ucuslar = _context.Ucuslar
                 .Where(u => u.KalkisYeri.ToLower() == kalkis.ToLower()
                             && u.VarisYeri.ToLower() == varis.ToLower()
