@@ -48,7 +48,10 @@ namespace UcakBiletiRezervasyonSistemi.Data
             modelBuilder.Entity<Yolcu>(entity =>
             {
                 entity.ToTable("Yolcular");
-                entity.Property(e => e.Id).HasColumnName("Id");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                    .HasColumnName("Id")
+                    .ValueGeneratedOnAdd();
                 entity.Property(e => e.RezervasyonKodu).HasColumnName("RezervasyonKodu");
                 entity.Property(e => e.Ad).HasColumnName("Ad");
                 entity.Property(e => e.Soyad).HasColumnName("Soyad");

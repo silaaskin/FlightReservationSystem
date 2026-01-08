@@ -191,6 +191,10 @@
     let yolcuFiyatlari = new Array(MAX_SEATS).fill(BASE_PRICE);
 
     $(document).ready(function () {
+        // Başlangıçta ilk yolcuyu aktif yap ve fiyatları göster
+        $('.yolcu-card').first().addClass('active');
+        updatePrices();
+
         // Haritadan koltuk tıklama
         $('.koltuk-secilebilir').on('click', function() {
             const seatKey = $(this).data('koltuk-key');
