@@ -37,15 +37,12 @@ namespace UcakBiletiRezervasyonSistemi.Models
         {
             Koltuklar.Clear();
             
-            // A, B, C, D, E, F sırası (6 sütun)
             char[] siraHarfleri = { 'A', 'B', 'C', 'D', 'E', 'F' };
             
-            // Kaç sıra gerekli? (her sırada 6 koltuk)
             int maxSira = (int)Math.Ceiling((double)kapasite / siraHarfleri.Length);
 
             int eklenmisSayisi = 0;
 
-            // Sıra sıra koltuk oluştur (1'den başla)
             for (int sira = 1; sira <= maxSira && eklenmisSayisi < kapasite; sira++)
             {
                 foreach (char harf in siraHarfleri)
@@ -54,8 +51,7 @@ namespace UcakBiletiRezervasyonSistemi.Models
                     
                     string koltukNo = $"{harf}{sira}";
                     
-                    // İlk 2 SIRA Business, geri kalanı Ekonomi
-                    KoltukTip tip = (sira <= 2) ? KoltukTip.Business : KoltukTip.Ekonomi;
+                    KoltukTip tip = (sira <= 1) ? KoltukTip.Business : KoltukTip.Ekonomi;
                     decimal ekFiyat = (tip == KoltukTip.Business) ? 500m : 0m;
                     
                     Koltuklar.Add(koltukNo, new Koltuk 

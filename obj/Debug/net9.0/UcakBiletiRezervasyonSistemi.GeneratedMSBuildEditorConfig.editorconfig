@@ -17,81 +17,85 @@ build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = UcakBiletiRezervasyonSistemi
 build_property.RootNamespace = UcakBiletiRezervasyonSistemi
-build_property.ProjectDir = /Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/
+build_property.ProjectDir = /Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = /Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi
+build_property.MSBuildProjectDirectory = /Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Admin/Index.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Admin/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Admin/UcusDetay.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Admin/UcusDetay.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vVWN1c0RldGF5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Admin/UcusEkle.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Admin/UcusEkle.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW4vVWN1c0VrbGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Home/Index.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Home/Privacy.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Kullanici/Login.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Kullanici/KayitOl.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvS3VsbGFuaWNpL0theWl0T2wuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Kullanici/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvS3VsbGFuaWNpL0xvZ2luLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Rezervasyon/Detay.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Rezervasyon/Detay.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmV6ZXJ2YXN5b24vRGV0YXkuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Rezervasyon/DetayGoster.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Rezervasyon/DetayGoster.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmV6ZXJ2YXN5b24vRGV0YXlHb3N0ZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Rezervasyon/Index.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Rezervasyon/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmV6ZXJ2YXN5b24vSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Rezervasyon/MusteriRezervasyonlari.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Rezervasyon/MusteriRezervasyonlari.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmV6ZXJ2YXN5b24vTXVzdGVyaVJlemVydmFzeW9ubGFyaS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Rezervasyon/UcusAra.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Rezervasyon/UcusAra.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmV6ZXJ2YXN5b24vVWN1c0FyYS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Rezervasyon/YolcuBilgileri.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Rezervasyon/YolcuBilgileri.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmV6ZXJ2YXN5b24vWW9sY3VCaWxnaWxlcmkuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Shared/Error.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Shared/_ValidationScriptsPartial.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/_ViewImports.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/_ViewStart.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/Views/Shared/_Layout.cshtml]
+[/Users/silaaskin/Desktop/sıla_aşkın_250229099/UcakRezervasyonSistemi/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-1j7gku7i63

@@ -48,14 +48,6 @@
         .btn-login:hover {
             background-color: #0b5ed7;
         }
-        .test-info {
-            background: #e7f3ff;
-            border-left: 4px solid #0d6efd;
-            padding: 12px;
-            border-radius: 5px;
-            margin-top: 20px;
-            font-size: 13px;
-        }
     </style>
 </head>
 <body>
@@ -90,15 +82,11 @@
                 <input type="password" name="sifre" class="form-control" required placeholder="Şifreniz" />
             </div>
             <button type="submit" class="btn btn-primary btn-login w-100">Giriş Yap</button>
-        </form>
 
-        <div class="test-info">
-            <strong>Test Hesapları:</strong><br>
-            <small>
-                Admin: <code>11111111111</code> / <code>admin123</code><br>
-                Müşteri: <code>22222222222</code> / <code>musteri123</code>
-            </small>
-        </div>
+            <div class="text-center mt-3">
+                <p>Hesabınız yok mu? <a asp-action="KayitOl" class="text-primary text-decoration-none fw-bold">Şimdi Kayıt Ol</a></p>
+            </div>
+        </form>
     </div>
 </body>
 </html>

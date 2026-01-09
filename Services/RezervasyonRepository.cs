@@ -88,6 +88,15 @@ namespace UcakBiletiRezervasyonSistemi.Services
                 return false;
             }
         }
+        public bool UcusIcinTcKayitliMi(string tcNo, string ucusNo)
+        {
+            return _context.Yolcular.Any(y => 
+                y.TcNo == tcNo && 
+                _context.Rezervasyonlar.Any(r => 
+                    r.RezervasyonKodu == y.RezervasyonKodu && 
+                    r.UcusNo == ucusNo && 
+                    r.AktifMi));
+        }
 
         public void UcusIptalEdildi(string ucusNo)
         {

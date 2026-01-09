@@ -36,6 +36,12 @@ namespace UcakBiletiRezervasyonSistemi.Controllers
         {
             if (!AdminMi()) return RedirectToAction("Login", "Kullanici");
 
+            if (yeniUcus.KalkisTarihiSaati < DateTime.Now)
+            {
+                ViewBag.Hata = "Geçmiş bir tarihe veya saate uçuş eklenemez.";
+                return View(yeniUcus);
+            }
+
             try
             {
                 _repository.UcusEkle(yeniUcus);
@@ -44,7 +50,7 @@ namespace UcakBiletiRezervasyonSistemi.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Hata"] = ex.Message;
+                ViewBag.Hata = "Veritabanı hatası: " + ex.Message;
                 return View(yeniUcus);
             }
         }

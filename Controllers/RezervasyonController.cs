@@ -51,77 +51,94 @@ namespace UcakBiletiRezervasyonSistemi.Controllers
             return View(ucus);
         }
 
-        [HttpPost]
-        public IActionResult YolcuBilgileri(string ucusNo, int yolcuSayisi, string? kuponKodu = null)
+// YolcuBilgileri metodunu GET destekli yapın ki RedirectToAction çalışsın
+[HttpGet, HttpPost]
+public IActionResult YolcuBilgileri(string ucusNo, int yolcuSayisi, string? kuponKodu = null)
+{
+    string? musteriTc = HttpContext.Session.GetString("TcNo");
+    if (string.IsNullOrEmpty(musteriTc)) return RedirectToAction("Login", "Kullanici");
+
+    var ucus = _ucusRepo.UcusGetir(ucusNo);
+    if (ucus == null || yolcuSayisi <= 0)
+    {
+        TempData["Hata"] = "Geçersiz uçuş bilgisi.";
+        return RedirectToAction("Index");
+    }
+
+    ViewBag.UcusNo = ucusNo;
+    ViewBag.YolcuSayisi = yolcuSayisi;
+    ViewBag.MusteriTc = musteriTc;
+    ViewBag.ToplamFiyat = _fiyatServisi.FiyatHesapla(ucus, yolcuSayisi, null, kuponKodu);
+    ViewBag.Koltuklar = ucus.Koltuklar;
+
+    return View();
+}
+
+[HttpPost]
+public IActionResult Onayla(string ucusNo, int yolcuSayisi, List<Yolcu> yolcular, string? kuponKodu = null)
+{
+    string? musteriTc = HttpContext.Session.GetString("TcNo");
+    var ucus = _ucusRepo.UcusGetir(ucusNo);
+
+    if (string.IsNullOrEmpty(musteriTc) || ucus == null || yolcular == null || yolcular.Count == 0)
+    {
+        TempData["Hata"] = "Rezervasyon bilgileri eksik.";
+        return RedirectToAction("Index");
+    }
+
+    // 1. KONTROL: Aynı liste içinde mükerrer TC var mı?
+    var girilenTcler = yolcular.Select(y => y.TcNo).ToList();
+    if (girilenTcler.Count != girilenTcler.Distinct().Count())
+    {
+        TempData["Hata"] = "Aynı rezervasyon içinde birden fazla yolcu için aynı TC numarası girilemez.";
+        return RedirectToAction("YolcuBilgileri", new { ucusNo, yolcuSayisi });
+    }
+
+    // 2. KONTROL: Veritabanında bu uçuş için bu TC'ler zaten kayıtlı mı?
+    foreach (var yolcu in yolcular)
+    {
+        if (_rezervasyonRepo.UcusIcinTcKayitliMi(yolcu.TcNo, ucusNo))
         {
-            string? musteriTc = HttpContext.Session.GetString("TcNo");
-            if (string.IsNullOrEmpty(musteriTc)) return RedirectToAction("Login", "Kullanici");
-
-            var ucus = _ucusRepo.UcusGetir(ucusNo);
-            if (ucus == null || yolcuSayisi <= 0 || yolcuSayisi > ucus.BosKoltukSayisi)
-            {
-                TempData["Hata"] = "Geçersiz uçuş veya koltuk sayısı.";
-                return RedirectToAction("Index");
-            }
-
-            ViewBag.UcusNo = ucusNo;
-            ViewBag.YolcuSayisi = yolcuSayisi;
-            ViewBag.MusteriTc = musteriTc;
-            ViewBag.ToplamFiyat = _fiyatServisi.FiyatHesapla(ucus, yolcuSayisi, null, kuponKodu);
-            ViewBag.Koltuklar = ucus.Koltuklar;
-            ViewBag.KuponKodu = kuponKodu;
-
-            return View();
+            TempData["Hata"] = $"{yolcu.TcNo} TC numaralı yolcu için bu uçuşta zaten aktif bir bilet bulunmaktadır.";
+            return RedirectToAction("YolcuBilgileri", new { ucusNo, yolcuSayisi });
         }
+    }
 
-        [HttpPost]
-        public IActionResult Onayla(string ucusNo, int yolcuSayisi, List<Yolcu> yolcular, string? kuponKodu = null)
+    try
+    {
+        // Koltuk ayırma işlemleri
+        foreach (var yolcu in yolcular)
         {
-            string? musteriTc = HttpContext.Session.GetString("TcNo");
-            var ucus = _ucusRepo.UcusGetir(ucusNo);
-
-            if (string.IsNullOrEmpty(musteriTc) || ucus == null || yolcular == null || yolcular.Count == 0)
+            if (!ucus.KoltukAyir(yolcu.KoltukNo))
             {
-                TempData["Hata"] = "Geçersiz rezervasyon bilgileri.";
-                return RedirectToAction("Index");
-            }
-
-            try
-            {
-                foreach (var yolcu in yolcular)
-                {
-                    if (!ucus.KoltukAyir(yolcu.KoltukNo))
-                    {
-                        TempData["Hata"] = $"Koltuk {yolcu.KoltukNo} zaten dolu veya geçersiz.";
-                        return RedirectToAction("YolcuBilgileri", new { ucusNo, yolcuSayisi });
-                    }
-                }
-
-                decimal sonFiyat = _fiyatServisi.FiyatHesapla(ucus, yolcuSayisi, null, kuponKodu);
-                ucus.BosKoltukSayisi -= yolcular.Count;
-
-                var yeniRezervasyon = new Rezervasyon
-                {
-                    UcusNo = ucusNo,
-                    MusteriTcNo = musteriTc,
-                    ToplamFiyat = sonFiyat,
-                    Yolcular = yolcular,
-                    RezervasyonTarihi = DateTime.Now
-                };
-
-                _rezervasyonRepo.RezervasyonEkle(yeniRezervasyon);
-                _ucusRepo.UcusGuncelle(ucus);
-
-                TempData["Basarili"] = "Rezervasyonunuz başarıyla oluşturuldu!";
-                return RedirectToAction("DetayGoster", new { kod = yeniRezervasyon.RezervasyonKodu });
-            }
-            catch (Exception ex)
-            {
-                TempData["Hata"] = "Rezervasyon oluşturulurken hata: " + ex.Message;
-                return RedirectToAction("Index");
+                TempData["Hata"] = $"Koltuk {yolcu.KoltukNo} artık müsait değil.";
+                return RedirectToAction("YolcuBilgileri", new { ucusNo, yolcuSayisi });
             }
         }
 
+        // Rezervasyonu kaydet
+        decimal sonFiyat = _fiyatServisi.FiyatHesapla(ucus, yolcuSayisi, null, kuponKodu);
+        var yeniRezervasyon = new Rezervasyon
+        {
+            UcusNo = ucusNo,
+            MusteriTcNo = musteriTc,
+            ToplamFiyat = sonFiyat,
+            Yolcular = yolcular,
+            RezervasyonTarihi = DateTime.Now
+        };
+
+        _rezervasyonRepo.RezervasyonEkle(yeniRezervasyon);
+        _ucusRepo.UcusGuncelle(ucus);
+
+        TempData["Basarili"] = "Rezervasyonunuz başarıyla oluşturuldu!";
+        return RedirectToAction("DetayGoster", new { kod = yeniRezervasyon.RezervasyonKodu });
+    }
+    catch (Exception ex)
+    {
+        TempData["Hata"] = "Hata: " + ex.Message;
+        return RedirectToAction("Index");
+    }
+}
         public IActionResult DetayGoster(string kod)
         {
             var rezervasyon = _rezervasyonRepo.RezervasyonGetir(kod);
