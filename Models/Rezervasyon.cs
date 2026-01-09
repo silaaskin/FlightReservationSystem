@@ -10,11 +10,10 @@ namespace UcakBiletiRezervasyonSistemi.Models
         public string MusteriTcNo { get; set; } = string.Empty;
         public DateTime RezervasyonTarihi { get; set; }
         
-        // SQL'deki 'ToplamFiyat' sütunuyla eşleşmesi için ismi güncelledik
         public decimal ToplamFiyat { get; set; } 
         
         public bool AktifMi { get; set; }
-        public string? Mesaj { get; set; } // Boş olabilir
+        public string? Mesaj { get; set; }
 
         public List<Yolcu> Yolcular { get; set; } = new List<Yolcu>();
 

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UcakBiletiRezervasyonSistemi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e38ac2917b08c83e6512b4e660fbd79f852a447e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+11441e94fea4862e6c01a1c36c323dbc70281d50")]
 [assembly: System.Reflection.AssemblyProductAttribute("UcakBiletiRezervasyonSistemi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UcakBiletiRezervasyonSistemi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

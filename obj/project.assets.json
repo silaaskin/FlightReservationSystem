@@ -2799,11 +2799,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/silaaskin/Desktop/FlightReservationSystem/UcakBiletiRezervasyonSistemi.csproj",
+      "projectUniqueName": "/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/UcakBiletiRezervasyonSistemi.csproj",
       "projectName": "UcakBiletiRezervasyonSistemi",
-      "projectPath": "/Users/silaaskin/Desktop/FlightReservationSystem/UcakBiletiRezervasyonSistemi.csproj",
+      "projectPath": "/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/UcakBiletiRezervasyonSistemi.csproj",
       "packagesPath": "/Users/silaaskin/.nuget/packages/",
-      "outputPath": "/Users/silaaskin/Desktop/FlightReservationSystem/obj/",
+      "outputPath": "/Users/silaaskin/Desktop/sıla_aşkın_250229099Lab3/UcakRezervasyonSistemi/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/silaaskin/.nuget/NuGet/NuGet.Config"
